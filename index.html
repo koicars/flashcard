@@ -1,0 +1,2271 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --bg-1:#FBF8FF; --bg-2:#F3F0FC;
+    --surface:rgba(255,255,255,0.55); --surface-solid:#FFFFFF;
+    --border:#E9E3F7; --border-strong:#D9CFF2;
+    --ink:#3D3A48; --ink-soft:#8B8598; --ink-faint:#B9B2CC;
+    --accent:#A8B4F2; --accent-strong:#8C9AEC; --accent-soft:rgba(168,180,242,0.28);
+    --amber:#FFCB93; --mint:#9FE0C7; --danger:#F3A0B0; --danger-soft:rgba(243,160,176,0.20);
+    font-family:"Inter","Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  }
+  #wcapp[data-theme="dark"]{
+    --bg-1:#1A1622; --bg-2:#20192B;
+    --surface:rgba(255,255,255,0.05); --surface-solid:#241D30;
+    --border:rgba(255,255,255,0.10); --border-strong:rgba(255,255,255,0.18);
+    --ink:#F1EEF8; --ink-soft:#A79FBE; --ink-faint:#6E6684;
+    --accent:#9AA8F0; --accent-strong:#B4BFF4; --accent-soft:rgba(154,168,240,0.22);
+    --amber:#F0B778; --mint:#7FD1B3; --danger:#EE8FA2; --danger-soft:rgba(238,143,162,0.20);
+  }
+  *{box-sizing:border-box;}
+  #wcapp{
+    position:relative;
+    background:
+      radial-gradient(60% 50% at 12% -10%, rgba(168,180,242,0.35) 0%, transparent 60%),
+      radial-gradient(50% 45% at 100% 0%, rgba(255,203,147,0.30) 0%, transparent 60%),
+      var(--bg-1);
+    color:var(--ink); padding:26px; border-radius:20px; min-height:400px;
+    border:1px solid var(--border); overflow:hidden;
+  }
+  .wc-header{ display:flex; justify-content:space-between; align-items:flex-end; padding-bottom:16px; margin-bottom:20px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:10px; }
+  .wc-eyebrow{ display:block; font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-strong); margin-bottom:6px; }
+  .wc-header h1{ font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:25px; letter-spacing:-.01em; margin:0; }
+  .wc-header-right{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .wc-count{ font-family:"JetBrains Mono",monospace; font-size:12px; color:var(--ink-soft); background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:5px 12px; display:inline-flex; align-items:center; gap:6px; }
+  .wc-count::before{ content:""; width:6px;height:6px;border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .wc-icon-btn{ background:var(--surface); border:1px solid var(--border); color:var(--ink-soft); border-radius:10px; padding:7px 10px; cursor:pointer; font-size:12px; display:inline-flex; align-items:center; gap:5px; transition:all .12s ease; }
+  .wc-icon-btn:hover{ color:var(--ink); border-color:var(--accent); background:var(--accent-soft); }
+  .wc-icon-btn:disabled{ opacity:.4; cursor:default; }
+  .wc-icon-btn svg{width:14px;height:14px;}
+
+  .wc-layout{ display:grid; grid-template-columns: 360px 1fr; gap:18px; }
+  @media (max-width:760px){ .wc-layout{grid-template-columns:1fr;} }
+
+  .wc-panel{ background:var(--surface); backdrop-filter:blur(14px); border:1px solid var(--border); border-radius:16px; padding:20px; }
+  .wc-panel h2{ font-family:"Space Grotesk",sans-serif; font-size:13px; font-weight:600; margin:0 0 16px 0; display:flex; align-items:center; gap:8px; }
+  .wc-panel h2 .wc-dot{ width:7px;height:7px;border-radius:50%;background:var(--accent); }
+  .wc-panel h2 small{ font-weight:400; color:var(--ink-soft); font-size:11px; margin-left:auto; }
+
+  .wc-field{margin-bottom:12px;}
+  .wc-field label{ display:block; font-size:11.5px; color:var(--ink-soft); margin-bottom:5px; }
+  .wc-field input[type=text], .wc-field input[type=number], .wc-field select, .wc-field textarea{
+    width:100%; padding:9px 11px; border:1px solid var(--border); border-radius:10px;
+    font-size:13px; font-family:inherit; background:rgba(255,255,255,0.85); color:var(--ink);
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  #wcapp[data-theme="dark"] .wc-field input, #wcapp[data-theme="dark"] .wc-field select, #wcapp[data-theme="dark"] .wc-field textarea{ background:rgba(255,255,255,0.06); }
+  .wc-field input::placeholder, .wc-field textarea::placeholder{ color:var(--ink-faint); }
+  .wc-field input:focus, .wc-field select:focus, .wc-field textarea:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .wc-field select{ color-scheme: light; }
+  #wcapp[data-theme="dark"] .wc-field select{ color-scheme: dark; }
+  .wc-field textarea{resize:vertical;min-height:38px;}
+  .wc-examples .ex-row{ display:flex; gap:6px; margin-bottom:6px; }
+  .wc-examples .ex-row input{flex:1;}
+  .wc-two-col{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .wc-tag-suggest{ display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+  .wc-tag-suggest button{ border:1px dashed var(--border-strong); background:transparent; color:var(--ink-soft); border-radius:100px; padding:2px 9px; font-size:10.5px; cursor:pointer; }
+  .wc-tag-suggest button:hover{ border-color:var(--accent); color:var(--ink); }
+  .wc-fav-btn{ border:1px solid var(--border-strong); background:transparent; border-radius:10px; padding:9px 12px; cursor:pointer; font-size:13px; color:var(--ink-soft); width:100%; text-align:center; transition:all .12s ease; }
+  .wc-fav-btn[data-fav="true"]{ background:rgba(255,203,147,0.25); border-color:var(--amber); color:#8a5a1c; }
+  #wcapp[data-theme="dark"] .wc-fav-btn[data-fav="true"]{ color:#ffd9a5; }
+
+  .wc-btn{ border:none; border-radius:10px; padding:10px 16px; font-size:13px; cursor:pointer; font-weight:500; display:inline-flex; align-items:center; gap:7px; justify-content:center; transition:transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease; }
+  .wc-btn svg{width:14px;height:14px;flex-shrink:0;}
+  .wc-btn-primary{ background:var(--accent); color:#2E2A45; font-weight:600; }
+  .wc-btn-primary:hover{ background:var(--accent-strong); transform:translateY(-1px); box-shadow:0 6px 18px rgba(168,180,242,0.45); }
+  .wc-btn-ghost{ background:transparent; color:var(--ink-soft); border:1px solid var(--border-strong); }
+  .wc-btn-ghost:hover{ color:var(--ink); border-color:var(--accent); background:var(--accent-soft); transform:translateY(-1px); }
+  .wc-btn-danger{ background:transparent; color:#C2607A; border:1px solid rgba(243,160,176,0.6); }
+  .wc-btn-danger:hover{ background:var(--danger-soft); transform:translateY(-1px); }
+  .wc-btn-small{padding:6px 11px;font-size:11.5px;border-radius:8px;}
+  .wc-btn:disabled{opacity:.5;cursor:default;transform:none !important;box-shadow:none !important;}
+  .wc-row-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+
+  .wc-ai-hint{ font-size:11px; color:var(--ink-soft); background:rgba(255,203,147,0.20); border:1px solid rgba(255,203,147,0.45); border-radius:10px; padding:9px 11px; margin-bottom:14px; line-height:1.55; }
+
+  .wc-filters{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+  .wc-filters select, .wc-filters input[type=text]{ padding:7px 9px;border:1px solid var(--border);border-radius:10px;font-size:12px; background:rgba(255,255,255,0.85);color:var(--ink); }
+  #wcapp[data-theme="dark"] .wc-filters select, #wcapp[data-theme="dark"] .wc-filters input{ background:rgba(255,255,255,0.06); }
+  .wc-filters input[type=text]{flex:1;min-width:120px;}
+  .wc-tagbar{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; }
+  .wc-tagbar button{ border:1px solid var(--border-strong); background:transparent; border-radius:100px; padding:3px 10px; font-size:11px; cursor:pointer; color:var(--ink-soft); }
+  .wc-tagbar button.active{ color:#2E2A45; border-color:transparent; font-weight:600; }
+  #wcapp[data-theme="dark"] .wc-tagbar button.active{ color:#241D30; }
+
+  .wc-bulkbar{ display:none; align-items:center; gap:6px; flex-wrap:wrap; background:var(--accent-soft); border:1px solid var(--accent); border-radius:10px; padding:8px 10px; margin-bottom:10px; font-size:12px; }
+  .wc-bulkbar.show{display:flex;}
+  .wc-bulkbar input[type=text]{ width:110px; padding:5px 8px; border:1px solid var(--border-strong); border-radius:8px; font-size:11.5px; }
+  .wc-bulkbar select{ padding:5px 8px; border:1px solid var(--border-strong); border-radius:8px; font-size:11.5px; }
+
+  .wc-list{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow-y:auto;padding-right:4px;}
+  .wc-list::-webkit-scrollbar{width:6px;}
+  .wc-list::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:10px;}
+  .wc-item{ background:rgba(255,255,255,0.55); border:1px solid var(--border); border-left:3px solid var(--cat, var(--accent)); border-radius:12px; padding:10px 13px; display:flex; gap:9px; align-items:flex-start; transition:background .12s ease, transform .12s ease; }
+  #wcapp[data-theme="dark"] .wc-item{ background:rgba(255,255,255,0.04); }
+  .wc-item:hover{ background:rgba(255,255,255,0.9); transform:translateY(-1px); }
+  #wcapp[data-theme="dark"] .wc-item:hover{ background:rgba(255,255,255,0.08); }
+  .wc-item input[type=checkbox]{ margin-top:4px; width:14px;height:14px; flex-shrink:0; }
+  .wc-item-main{flex:1;min-width:0;}
+  .wc-chiprow{ display:flex; flex-wrap:wrap; gap:4px; margin-bottom:5px; align-items:center; }
+  .wc-tagchip{ font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.03em; color:#40395c; border-radius:100px; padding:2px 8px; }
+  #wcapp[data-theme="dark"] .wc-tagchip{ color:#241D30; }
+  .wc-statuschip{ font-size:9.5px; border-radius:100px; padding:2px 8px; font-weight:600; }
+  .wc-statuschip.unlearned{ background:var(--border-strong); color:var(--ink-soft); }
+  .wc-statuschip.learning{ background:rgba(255,203,147,0.35); color:#8a5a1c; }
+  .wc-statuschip.mastered{ background:rgba(159,224,199,0.4); color:#1f6b4e; }
+  #wcapp[data-theme="dark"] .wc-statuschip.learning{ color:#ffd9a5; }
+  #wcapp[data-theme="dark"] .wc-statuschip.mastered{ color:#a6f0d4; }
+  .wc-freq{ font-size:10px; color:var(--amber); letter-spacing:1px; }
+  .wc-item .wc-jp{font-family:"Space Grotesk",sans-serif;font-size:14.5px;font-weight:600;}
+  .wc-item .wc-en{font-size:12px;color:var(--ink-soft);margin-top:3px;display:flex;align-items:center;gap:6px;}
+  .wc-speak-btn{ border:none; background:transparent; cursor:pointer; color:var(--ink-soft); padding:0; display:inline-flex; }
+  .wc-speak-btn:hover{ color:var(--accent-strong); }
+  .wc-item-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end;}
+  .wc-item-actions-row{display:flex;gap:4px;}
+  .wc-star-toggle{ background:transparent;border:none;cursor:pointer;font-size:16px;color:var(--border-strong); line-height:1; }
+  .wc-star-toggle.on{ color:var(--amber); }
+  .wc-empty{ text-align:center;color:var(--ink-soft);font-size:12.5px;padding:36px 10px; border:1px dashed var(--border-strong); border-radius:12px; }
+
+  .wc-statgrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; }
+  .wc-statbox{ background:rgba(255,255,255,0.5); border:1px solid var(--border); border-radius:12px; padding:12px; }
+  #wcapp[data-theme="dark"] .wc-statbox{ background:rgba(255,255,255,0.04); }
+  .wc-statbox .n{ font-family:"Space Grotesk",sans-serif; font-size:22px; font-weight:700; }
+  .wc-statbox .l{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+  .wc-toptags{ margin-top:14px; display:flex; flex-wrap:wrap; gap:6px; }
+
+  .wc-toolsrow{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .wc-quality-list{ margin-top:10px; font-size:12px; display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; }
+  .wc-quality-item{ background:rgba(243,160,176,0.12); border:1px solid rgba(243,160,176,0.4); border-radius:8px; padding:7px 10px; }
+
+  .wc-print-controls{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  .wc-print-controls label{ font-size:11.5px; color:var(--ink-soft); display:flex; align-items:center; gap:6px; }
+  .wc-print-controls input[type=number]{ width:70px; padding:6px 8px; border:1px solid var(--border); border-radius:8px; }
+  .wc-zoomrow{ display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--ink-soft); }
+  .wc-pagerow{ display:flex; align-items:center; gap:8px; font-size:12px; }
+
+  .wc-print-note{font-size:11px;color:var(--ink-soft);line-height:1.7;margin-top:12px;}
+
+  #wc-print-area{ margin-top:6px; }
+  .wc-preview-scroll{ display:flex; flex-direction:column; align-items:center; gap:18px; overflow-x:auto; padding:4px 4px 12px; }
+  .wc-page-wrap{ width:calc(210mm * var(--zoom, 0.62)); height:calc(297mm * var(--zoom, 0.62)); overflow:hidden; flex-shrink:0; border-radius:6px; box-shadow:0 8px 28px rgba(61,58,72,0.16); }
+  .wc-page-wrap .wc-page{ transform:scale(var(--zoom, 0.62)); transform-origin:top left; }
+  .wc-page{ width:210mm; height:297mm; padding:28.5mm 35mm; position:relative; background:#fff; }
+  .wc-grid-table{ border-collapse:collapse; table-layout:fixed; width:140mm; }
+  .wc-grid-table td{ padding:0; }
+  .wc-face{ width:70mm; height:30mm; position:relative; overflow:hidden; border:0.12mm solid #c9c9c9; padding:2mm 2.8mm; font-family:-apple-system,"Helvetica Neue","Hiragino Sans","Yu Gothic",Arial,sans-serif; background:#fff; color:#1a1a1a; display:flex; align-items:center; justify-content:center; text-align:center; box-sizing:border-box; }
+  .wc-face::before, .wc-face::after{ content:""; position:absolute; width:1.6mm; height:1.6mm; border-top:0.15mm solid #999; border-left:0.15mm solid #999; }
+  .wc-face::before{ top:-0.3mm; left:-0.3mm; }
+  .wc-face::after{ bottom:-0.3mm; right:-0.3mm; transform:rotate(180deg); }
+  .wc-hole{ position:absolute; left:2.8mm; top:50%; transform:translateY(-50%); width:2.3mm; height:2.3mm; border:0.15mm solid #999; border-radius:50%; }
+  .wc-jp-text{ font-family:"Hiragino Sans","Yu Gothic",sans-serif; font-weight:600; line-height:1.28; padding-left:4.5mm; word-break:break-word; font-size:1em; }
+  .wc-cat-mini{ position:absolute; top:1.2mm; right:1.8mm; font-family:monospace; font-size:4.8pt; color:#999; max-width:24mm; text-align:right; }
+  .wc-back-inner{ display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.22; width:100%; }
+  .wc-back-inner .wc-en-text{font-weight:700;margin-bottom:0.3mm;font-size:1.8em;}
+  .wc-back-inner .wc-pron{font-family:monospace;color:#666;font-style:italic;margin-bottom:0.6mm;}
+  .wc-back-inner .wc-core{margin-bottom:0.3mm;}
+  .wc-back-inner .wc-core b, .wc-back-inner .wc-form b, .wc-back-inner .wc-reg b{color:#0f766e;font-weight:600;}
+  .wc-back-inner .wc-form{margin-bottom:0.3mm;}
+  .wc-back-inner .wc-reg{color:#92650f;margin-bottom:0.3mm;}
+  .wc-back-inner .wc-ex{color:#333;}
+  .wc-back-inner .wc-ex div{margin-bottom:0.15mm;}
+
+  #wc-toast{ position:fixed; left:50%; bottom:24px; transform:translate(-50%, 20px); background:#2E2A45; color:#fff; font-size:13px; font-weight:500; padding:10px 18px; border-radius:100px; box-shadow:0 10px 30px rgba(0,0,0,0.25); opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:9999; }
+  #wc-toast.show{ opacity:1; transform:translate(-50%, 0); pointer-events:auto; }
+
+  @keyframes wc-flash{ 0%{ box-shadow:0 0 0 4px var(--accent-soft); border-color:var(--accent); } 100%{ box-shadow:0 0 0 0 rgba(0,0,0,0); border-color:var(--border); } }
+  .wc-panel.flash{ animation:wc-flash 1000ms ease; }
+
+  @media print{
+    body *{visibility:hidden;}
+    #wcapp, #wcapp *{visibility:visible;}
+    .no-print{display:none !important;}
+    #wcapp{ background:#fff !important; border:none !important; padding:0 !important; border-radius:0 !important; }
+    #wc-print-area{position:absolute;left:0;top:0;margin:0;padding:0;}
+    .wc-preview-scroll{display:block !important;overflow:visible;padding:0;}
+    .wc-page-wrap{ width:210mm !important; height:297mm !important; overflow:visible !important; box-shadow:none !important; border-radius:0 !important; page-break-after:always; break-inside:avoid; page-break-inside:avoid; margin:0 auto; display:block !important; }
+    .wc-page-wrap .wc-page{ transform:none !important; }
+    @page{ size:A4 portrait; margin:0; }
+  }
+</style>
+
+<div id="wcapp">
+  <div class="wc-header no-print">
+    <div>
+      <span class="wc-eyebrow">Vocabulary Card System</span>
+      <h1>Flash Card Maker</h1>
+    </div>
+    <div class="wc-header-right no-print">
+      <button class="wc-icon-btn" id="btn-undo" title="元に戻す (Ctrl+Z)">↶ Undo</button>
+      <button class="wc-icon-btn" id="btn-redo" title="やり直す (Ctrl+Shift+Z)">↷ Redo</button>
+      <button class="wc-icon-btn" id="btn-theme">🌙 テーマ</button>
+      <div class="wc-count" id="wc-count">0枚 保存中</div>
+    </div>
+  </div>
+
+  <div class="wc-layout no-print">
+    <div class="wc-panel" id="wc-form-panel">
+      <h2 id="wc-form-title"><span class="wc-dot"></span>カードを追加</h2>
+
+      <div class="wc-field">
+        <label>表：日本語フレーズ</label>
+        <textarea id="f-jp" rows="2" placeholder="例：この提案について検討していただけますか　／　consider"></textarea>
+      </div>
+      <div class="wc-field">
+        <label>裏：英語フレーズ</label>
+        <textarea id="f-en" rows="2" placeholder="例：Could you consider this proposal?"></textarea>
+      </div>
+      <div class="wc-ai-row"><button class="wc-btn wc-btn-primary" id="btn-ai" style="width:100%;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+        AIで自動生成
+      </button></div>
+      <div class="wc-ai-hint">日本語フレーズ、または調べたい英単語を入力してボタンを押すと、英語表現・例文・場面バリエーションなどを自動生成します（このチャット内プレビューでのみ動作）。動かない場合はチャットで「〇〇をカードに追加して」と伝えてください。</div>
+
+      <div class="wc-field"><label>よく使う形</label><input type="text" id="f-form" placeholder="例：consider + -ing"></div>
+      <div class="wc-field wc-examples">
+        <label>応用例文（ビジネス・日常会話で最も汎用性の高いもの1つ）</label>
+        <div class="ex-row"><input type="text" id="f-ex1" placeholder="例文"></div>
+      </div>
+      <div class="wc-field">
+        <label>敬語・場面バリエーション（1行に1つ「ラベル: フレーズ」）</label>
+        <textarea id="f-registers" rows="2" placeholder="カジュアル: Can you check this out?"></textarea>
+      </div>
+      <div class="wc-two-col">
+        <div class="wc-field"><label>学習状態</label>
+          <select id="f-status"><option value="unlearned">未学習</option><option value="learning">学習中</option><option value="mastered">習得済み</option></select>
+        </div>
+        <div class="wc-field"><label>ネイティブ使用頻度</label>
+          <select id="f-freq"><option value="0">未評価</option><option value="1">★☆☆☆☆</option><option value="2">★★☆☆☆</option><option value="3">★★★☆☆</option><option value="4">★★★★☆</option><option value="5">★★★★★</option></select>
+        </div>
+      </div>
+      <div class="wc-field">
+        <button type="button" class="wc-fav-btn" id="f-fav-btn" data-fav="false">☆ お気に入り</button>
+      </div>
+
+      <details style="margin-bottom:10px;">
+        <summary style="font-size:11.5px;color:var(--ink-soft);cursor:pointer;">AI補足情報（画面参照用・印刷カードには含まれません）</summary>
+        <div class="wc-field" style="margin-top:8px;"><label>類似表現</label><input type="text" id="f-ai-similar"></div>
+        <div class="wc-field"><label>ニュアンス比較</label><input type="text" id="f-ai-nuance"></div>
+        <div class="wc-field"><label>間違えやすい表現</label><input type="text" id="f-ai-mistakes"></div>
+        <div class="wc-field"><label>ネイティブらしい言い換え</label><input type="text" id="f-ai-paraphrase"></div>
+        <div class="wc-field"><label>フォーマル／カジュアル比較</label><input type="text" id="f-ai-formalcasual"></div>
+      </details>
+
+      <div class="wc-row-btns">
+        <button class="wc-btn wc-btn-primary" id="btn-save">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          保存する（Ctrl+S）
+        </button>
+        <button class="wc-btn wc-btn-ghost" id="btn-clear">クリア（Esc）</button>
+      </div>
+    </div>
+
+    <div class="wc-panel">
+      <h2><span class="wc-dot"></span>カード一覧</h2>
+
+      <div class="wc-filters">
+        <input type="text" id="filter-text" placeholder="全文検索（日本語・英語・例文など）">
+        <select id="filter-status"><option value="">すべての学習状態</option><option value="unlearned">未学習</option><option value="learning">学習中</option><option value="mastered">習得済み</option></select>
+        <select id="sort-mode">
+          <option value="new">新しい順</option><option value="old">古い順</option>
+          <option value="alpha">アルファベット順</option>
+          <option value="status">学習状態順</option><option value="favorite">お気に入り順</option>
+          <option value="freq">使用頻度順</option>
+        </select>
+        <label style="font-size:11.5px;display:flex;align-items:center;gap:4px;"><input type="checkbox" id="filter-fav"> ★のみ</label>
+      </div>
+
+      <div class="wc-filters">
+        <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-select-all">全選択切替</button>
+        <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-rand10">🎲 ランダム10枚</button>
+        <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-rand20">🎲 ランダム20枚</button>
+        <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-rand-clear">ランダム解除</button>
+      </div>
+
+      <div class="wc-bulkbar" id="wc-bulkbar">
+        <span id="wc-bulk-count">0件選択中</span>
+        <select id="bulk-status"><option value="unlearned">未学習に</option><option value="learning">学習中に</option><option value="mastered">習得済みに</option></select>
+        <button class="wc-btn wc-btn-ghost wc-btn-small" id="bulk-status-btn">状態変更</button>
+        <button class="wc-btn wc-btn-ghost wc-btn-small" id="bulk-fav-on">★追加</button>
+        <button class="wc-btn wc-btn-ghost wc-btn-small" id="bulk-fav-off">★解除</button>
+        <button class="wc-btn wc-btn-ghost wc-btn-small" id="bulk-print">選択分を印刷</button>
+        <button class="wc-btn wc-btn-danger wc-btn-small" id="bulk-delete">選択削除</button>
+      </div>
+
+      <div class="wc-list" id="wc-list"></div>
+    </div>
+  </div>
+
+  <div class="wc-panel no-print" style="margin-top:16px;">
+    <h2><span class="wc-dot"></span>統計</h2>
+    <div class="wc-statgrid" id="wc-stats"></div>
+  </div>
+
+  <div class="wc-panel no-print" style="margin-top:16px;">
+    <h2><span class="wc-dot"></span>クラウド同期（複数端末で共有）</h2>
+    <div class="wc-toolsrow">
+      <input type="text" id="wc-sync-code" maxlength="60" placeholder="Sync Code を入力または作成"
+        style="flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;font-size:12px;background:rgba(255,255,255,0.85);color:var(--ink);font-family:'JetBrains Mono',monospace;">
+      <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-sync-new">新規コード作成</button>
+      <button class="wc-btn wc-btn-primary wc-btn-small" id="btn-sync-connect">接続して同期</button>
+    </div>
+    <div id="wc-sync-status" style="font-size:11.5px;color:var(--ink-soft);margin-top:8px;"></div>
+    <div style="font-size:11px;color:var(--ink-soft);margin-top:8px;line-height:1.6;">
+      同じ Sync Code を別の端末（スマホ・PC）で入力すると、カードデータが共有されます。まず片方で「新規コード作成」→「接続して同期」、次にもう一方の端末で同じコードを入力して「接続して同期」してください。コードは他人に知られないよう管理してください。
+    </div>
+  </div>
+
+  <div class="wc-panel no-print" style="margin-top:16px;">
+    <h2><span class="wc-dot"></span>データ管理 / 品質チェック</h2>
+    <div class="wc-toolsrow">
+      <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-export">JSONで書き出す</button>
+      <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-export-text">印刷用データ</button>
+      <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-import-trigger">JSONを読み込む</button>
+      <input type="file" id="f-import" accept="application/json" style="display:none;">
+      <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-quality">品質チェックを実行</button>
+      <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-apply-template">最新データを取り込む</button>
+      <button class="wc-btn wc-btn-danger wc-btn-small" id="btn-reset">データを初期化</button>
+    </div>
+    <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);margin-top:10px;">
+      <input type="checkbox" id="auto-backup"> 保存するたびに自動でJSONバックアップをダウンロード（このプレビューで追加したカードを、手元のHTMLファイルに「JSONを読み込む」で反映させたい場合はON）
+    </label>
+    <div id="wc-export-text-wrap" style="display:none;margin-top:10px;">
+      <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:6px;">印刷したいタイミングでこのボタンを押し、下のテキストを全選択してコピーしてチャットに貼り付けてください（保存自体は自動なので、このボタンは印刷前のバックアップ用です）。</div>
+      <textarea id="wc-export-text" readonly style="width:100%;min-height:160px;font-family:monospace;font-size:11px;padding:8px;border:1px solid var(--border);border-radius:8px;"></textarea>
+    </div>
+    <div class="wc-quality-list" id="wc-quality-list"></div>
+  </div>
+
+  <div class="wc-panel" style="margin-top:16px;">
+    <div class="no-print">
+      <h2><span class="wc-dot"></span>印刷 / PDF</h2>
+      <div class="wc-print-controls">
+        <label>最小フォントサイズ(pt)<input type="number" id="settings-min-font" min="3" max="6" step="0.1" value="4.5"></label>
+        <label><input type="checkbox" id="print-fav-only"> お気に入りのみ印刷</label>
+      </div>
+      <div id="wc-print-target-count" style="font-size:12px;color:var(--ink-soft);margin-bottom:6px;font-family:'JetBrains Mono',monospace;"></div>
+      <div id="wc-print-target-list" style="font-size:11px;color:var(--ink-soft);margin-bottom:10px;max-height:120px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px 9px;"></div>
+      <div class="wc-row-btns" style="margin-top:0;">
+        <button class="wc-btn wc-btn-primary" id="btn-print">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+          印刷用シートを作成 / 印刷
+        </button>
+        <button class="wc-btn wc-btn-ghost" id="btn-pdf">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+          PDFをダウンロード
+        </button>
+      </div>
+      <div class="wc-print-note">A4縦向き、1ページ2列×8行（左列＝表、右列＝裏。1ページに8組）。カードサイズは70mm×30mm。マス目に沿って切るだけで完成します（回転操作は不要です）。応用例文は1つ目（最も汎用性の高いもの）のみ印刷されます。長文は自動で縮小表示されます（下限は上の設定値）。タグ・学習状態・お気に入りは物理カードには印刷されません（画面参照専用）。</div>
+    </div>
+
+    <div id="wc-print-area">
+      <div class="wc-pagerow no-print">
+        <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-page-prev">◀ 前へ</button>
+        <span id="wc-page-indicator">0 / 0</span>
+        <button class="wc-btn wc-btn-ghost wc-btn-small" id="btn-page-next">次へ ▶</button>
+        <div class="wc-zoomrow">ズーム <input type="range" id="wc-zoom" min="0.3" max="1" step="0.05" value="0.62"></div>
+      </div>
+      <div class="wc-preview-scroll" id="wc-preview-scroll"></div>
+    </div>
+  </div>
+
+  <div id="wc-toast"></div>
+
+  <div id="wc-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(30,25,45,0.45);z-index:10000;align-items:center;justify-content:center;padding:16px;">
+    <div id="wc-modal-box" style="background:#fff;border-radius:14px;padding:20px;max-width:440px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.35);font-family:'Inter',sans-serif;">
+      <div id="wc-modal-message" style="font-size:14px;color:#2E2A45;margin-bottom:18px;white-space:pre-wrap;line-height:1.6;"></div>
+      <div id="wc-modal-buttons" style="display:flex;gap:8px;justify-content:flex-end;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+  const SEED_TAGS = ["英会話フレーズ","English Express表現","単語まとめ","添削英文","よく間違える表現","旅行","ビジネス","ネイティブ","TOEIC","会議","メール"];
+  // AI生成の送信先。空文字ならプレビュー内蔵のAnthropic直通（この会話プレビューでのみ動作）。
+  // ローカルファイルで使う場合は、あなたのCloudflare WorkerのURLを入れる。
+  const AI_PROXY_URL = "https://flashcard-proxy.koicars3.workers.dev";
+  const STATUS_LABEL = { unlearned:"未学習", learning:"学習中", mastered:"習得済み" };
+  const FIELD_ORDER = ['f-jp','f-en','f-form','f-ex1','f-registers'];
+  const TAG_KEYWORDS = {
+    "旅行": ["空港","飛行機","ホテル","予約","旅行","観光","パスポート","airport","hotel","flight","travel","trip","passport"],
+    "ビジネス": ["会議","提案","契約","取引","営業","ビジネス","business","proposal","contract","deal","negotiat"],
+    "会議": ["会議","ミーティング","議題","議事録","meeting","agenda","minutes"],
+    "メール": ["メール","件名","添付","mail","email","attach","subject"],
+    "TOEIC": ["toeic","TOEIC"]
+  };
+
+  let cards = [];
+  let editingId = null;
+  let selection = new Set();
+  let historyStack = [];
+  let historyIndex = -1;
+  let activeTagFilters = new Set();
+  let randomSampleIds = null;
+  let currentPreviewPage = 0;
+  let settings = { theme: 'light', minFontSize: 4.5, autoBackup: false };
+
+  const $ = (id) => document.getElementById(id);
+
+  let toastTimer = null;
+  function showToast(msg, actionLabel, actionFn){
+    const t = $('wc-toast');
+    t.innerHTML = escapeHtml(msg) + (actionLabel ? ` <button id="wc-toast-action" style="margin-left:10px;background:transparent;border:1px solid rgba(255,255,255,0.5);color:#fff;border-radius:100px;padding:2px 10px;cursor:pointer;">${escapeHtml(actionLabel)}</button>` : '');
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), actionLabel ? 4200 : 1800);
+    if(actionLabel){
+      const btn = document.getElementById('wc-toast-action');
+      if(btn) btn.addEventListener('click', () => { actionFn(); t.classList.remove('show'); });
+    }
+  }
+
+  function showModal(message, buttons){
+    return new Promise(resolve => {
+      const overlay = $('wc-modal-overlay');
+      $('wc-modal-message').textContent = message;
+      const btnWrap = $('wc-modal-buttons');
+      btnWrap.innerHTML = '';
+      buttons.forEach(b => {
+        const btn = document.createElement('button');
+        btn.textContent = b.label;
+        btn.className = 'wc-btn ' + (b.primary ? 'wc-btn-primary' : 'wc-btn-ghost') + ' wc-btn-small';
+        btn.addEventListener('click', () => { overlay.style.display = 'none'; resolve(b.value); });
+        btnWrap.appendChild(btn);
+      });
+      overlay.style.display = 'flex';
+    });
+  }
+  function showConfirmModal(message){
+    return showModal(message, [{label:'キャンセル', value:false}, {label:'OK', value:true, primary:true}]);
+  }
+  function showAlertModal(message){
+    return showModal(message, [{label:'OK', value:true, primary:true}]);
+  }
+
+  function escapeHtml(s){
+    return (s||'').toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  function tagColor(tag){
+    let hash = 0;
+    for(let i=0;i<tag.length;i++) hash = tag.charCodeAt(i) + ((hash<<5)-hash);
+    const hue = Math.abs(hash) % 360;
+    return `hsl(${hue}, 60%, 82%)`;
+  }
+  function parseTags(text){
+    return Array.from(new Set((text||'').split(/[,、]/).map(t=>t.trim()).filter(Boolean)));
+  }
+  function autoTagHeuristic(jp, en){
+    const hay = ((jp||'') + ' ' + (en||'')).toLowerCase();
+    const found = [];
+    Object.keys(TAG_KEYWORDS).forEach(tag => {
+      if(TAG_KEYWORDS[tag].some(k => hay.includes(k.toLowerCase()))) found.push(tag);
+    });
+    return found;
+  }
+  function levenshtein(a, b){
+    const m = a.length, n = b.length;
+    if(m===0) return n; if(n===0) return m;
+    const dp = Array.from({length:m+1}, (_,i)=>[i,...Array(n).fill(0)]);
+    for(let j=0;j<=n;j++) dp[0][j] = j;
+    for(let i=1;i<=m;i++){
+      for(let j=1;j<=n;j++){
+        dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+      }
+    }
+    return dp[m][n];
+  }
+  function similarity(a, b){
+    a = (a||'').toLowerCase().trim(); b = (b||'').toLowerCase().trim();
+    if(!a || !b) return 0;
+    const maxLen = Math.max(a.length, b.length);
+    return 1 - levenshtein(a,b)/maxLen;
+  }
+  function computeFontSizes(card, minPt){
+    const frontLen = (card.jp||'').length;
+    let frontPt = 21;
+    const printedExample = (card.examples && card.examples[0]) || '';
+    const density = (card.en||'').length + (card.pron||'').length + (card.kana||'').length + (card.core||'').length + (card.form||'').length +
+      printedExample.length + (card.registers||[]).map(r=>(r.label||'')+(r.phrase||'')).join('').length;
+    let backPt = density<=110 ? 7.5 : Math.max(minPt, 7.5 - (density-110)*0.014);
+    return { frontPt: frontPt.toFixed(2), backPt: backPt.toFixed(2) };
+  }
+  function migrateCard(raw){
+    const c = Object.assign({}, raw);
+    if(!c.id) c.id = 'c'+Date.now()+Math.floor(Math.random()*100000);
+    if(!c.tags) c.tags = c.category ? [c.category] : [];
+    if(!c.status) c.status = 'unlearned';
+    if(c.favorite===undefined) c.favorite = false;
+    if(c.frequency===undefined) c.frequency = 0;
+    if(!c.examples) c.examples = [];
+    if(!c.registers) c.registers = [];
+    if(!c.kana) c.kana = '';
+    if(!c.aiExtra) c.aiExtra = {};
+    if(!c.createdAt) c.createdAt = Date.now();
+    if(!c.updatedAt) c.updatedAt = c.createdAt;
+    return c;
+  }
+
+  const PENDING_CARDS = [
+    {
+      "id": "c1783648804349990",
+      "jp": "全体のボリューム感がだんだん掴めてきた",
+      "en": "I'm starting to get the overall volume right.",
+      "pron": "/aɪm ˈstɑːrtɪŋ tə ɡɛt ði ˌoʊvərɔːl ˈvɒljuːm raɪt/",
+      "core": "試行錯誤の中で「正解」に近づいていく感覚",
+      "form": "be starting to get ~ right（〜をうまく掴みかけている）",
+      "examples": [
+        "I'm starting to get the overall volume right after a few test mixes.",
+        "She's starting to get the pacing right in her presentations.",
+        "We're starting to get the balance right between features and simplicity."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "I'm finally getting the volume to where I want it." },
+        { "label": "ビジネス", "phrase": "We're beginning to achieve the appropriate overall scale." },
+        { "label": "丁寧", "phrase": "I believe I'm gradually arriving at the right overall volume." }
+      ],
+      "createdAt": 1783648804349,
+      "tags": ["英会話フレーズ"],
+      "status": "learning", "favorite": false, "frequency": 0, "kana": "", "aiExtra": {}
+    },
+    {
+      "id": "c1783659822796495",
+      "tags": [],
+      "jp": "少しずつ追加していきますね。",
+      "en": "I'll add them little by little.",
+      "pron": "", "kana": "", "core": "", "form": "",
+      "examples": [], "registers": [],
+      "status": "learning", "favorite": false, "frequency": 0,
+      "aiExtra": {}, "createdAt": 1783659822796
+    },
+    {
+      "id": "c1783835583485735",
+      "tags": ["旅行", "ネイティブ", "文化"],
+      "jp": "雅やかな雰囲気",
+      "en": "graceful and elegant atmosphere",
+      "pron": "/ˈɡreɪsfəl ænd ˈɛlɪɡənt ˈætməsfɪər/",
+      "kana": "グレイスフル アンド エレガント アトモスフィア",
+      "core": "洗練された上品さ・気品",
+      "form": "graceful and elegant + 名詞 / have a graceful elegance / exude an air of elegance",
+      "examples": [
+        "The tea ceremony had a graceful and elegant atmosphere that felt deeply Japanese.",
+        "She moved with graceful elegance through the traditional garden.",
+        "The old Kyoto inn exuded an air of timeless grace and elegance."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "really graceful and classy" },
+        { "label": "ビジネス", "phrase": "possesses an air of refined elegance" }
+      ],
+      "status": "learning", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "elegant（エレガント）/ graceful（グレイスフル）/ refined（洗練された）/ stately（威厳のある）",
+        "nuance": "elegant は外見の洗練に重点、graceful は動きや振る舞いの優雅さ、refined は内面的な品格、stately はより荘厳で堂々とした印象",
+        "mistakes": "「雅やか」をそのまま gracious と訳しがちだが、gracious は「親切・寛大」の意味が強く、ニュアンスがずれる",
+        "paraphrase": "There's a timeless grace to it. / It has a quietly refined beauty.",
+        "formalCasual": "フォーマル: It possesses an air of refined elegance. / カジュアル: It's so graceful and classy."
+      },
+      "createdAt": 1783835583485
+    },
+    {
+      "id": "c1783837090434976",
+      "tags": ["ネイティブ", "日常会話", "感情"],
+      "jp": "恥ずかしい",
+      "en": "I'm embarrassed.",
+      "pron": "aɪm ɪmˈbærəst",
+      "kana": "アイム インバラスト",
+      "core": "他者の目を意識した「気まずさ・きまり悪さ」",
+      "form": "I'm embarrassed about ~. / I'm embarrassed to do ~. / How embarrassing!",
+      "examples": [
+        "I'm so embarrassed — I called my teacher \\\"Mom\\\" by mistake.",
+        "She was embarrassed about forgetting his name at the party.",
+        "It's embarrassing to trip in front of everyone."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "Oh god, that's so embarrassing!" },
+        { "label": "ビジネス", "phrase": "I apologize — this is quite embarrassing on our part." }
+      ],
+      "status": "learning", "favorite": false, "frequency": 5,
+      "aiExtra": {
+        "similar": "ashamed（恥・羞恥心）/ shy（内気・人見知り）/ awkward（気まずい・ぎこちない）",
+        "nuance": "embarrassedは「その場の恥ずかしさ」、ashamedは「道徳的な罪悪感を伴う深い恥」、shyは性格・気質を表す",
+        "mistakes": "shyと混同しがち。shyは「人見知りな性格」で恥ずかしい瞬間には使えない。また embarrassing と embarrassed の使い分けに注意（物事が embarrassing、人が embarrassed）",
+        "paraphrase": "I wanted to disappear. / That made me cringe. / I could have died of embarrassment.",
+        "formalCasual": "カジュアル: That was so cringe. / フォーマル: I find this rather embarrassing to admit."
+      },
+      "createdAt": 1783837090434
+    },
+    {
+      "id": "c-ig-1", "tags": ["English Express表現", "ネイティブ"],
+      "jp": "今日授業サボりたい気分",
+      "en": "I feel like skipping class today.",
+      "pron": "", "kana": "",
+      "core": "今の気分・軽くてリアルな「〜したい」。最優先で使いやすい表現",
+      "form": "feel like ~ing",
+      "examples": [], "registers": [],
+      "status": "learning", "favorite": false, "frequency": 4, "aiExtra": {},
+      "createdAt": 1783837100001
+    },
+    {
+      "id": "c-ig-2", "tags": ["English Express表現", "ネイティブ"],
+      "jp": "今話す気分じゃない",
+      "en": "I'm not in the mood to talk.",
+      "pron": "", "kana": "",
+      "core": "「気分が乗っている/いない」。ちょい大人でナチュラルな響き",
+      "form": "be (not) in the mood for / to ~",
+      "examples": [], "registers": [],
+      "status": "learning", "favorite": false, "frequency": 4, "aiExtra": {},
+      "createdAt": 1783837100002
+    },
+    {
+      "id": "c-ig-3", "tags": ["English Express表現", "ネイティブ"],
+      "jp": "ニューヨーク行きたすぎる！",
+      "en": "I'm dying to visit New York!",
+      "pron": "", "kana": "",
+      "core": "「めっちゃしたい」。強めで感情がしっかり乗った言い方",
+      "form": "be dying to ~",
+      "examples": [], "registers": [],
+      "status": "learning", "favorite": false, "frequency": 3, "aiExtra": {},
+      "createdAt": 1783837100003
+    },
+    {
+      "id": "c-ig-4", "tags": ["English Express表現", "ネイティブ"],
+      "jp": "集まりに参加するの楽しみすぎ！",
+      "en": "I can't wait to go to the party!",
+      "pron": "", "kana": "",
+      "core": "「待ちきれない」。ポジティブな話題での鉄板フレーズ",
+      "form": "can't wait to ~",
+      "examples": [], "registers": [],
+      "status": "learning", "favorite": false, "frequency": 5, "aiExtra": {},
+      "createdAt": 1783837100004
+    },
+    {
+      "id": "c-ig-5", "tags": ["English Express表現", "ネイティブ"],
+      "jp": "英語上達したいです",
+      "en": "I'm eager to improve my English.",
+      "pron": "", "kana": "",
+      "core": "ちょいフォーマルで、ちゃんとしてる印象を与える「〜したい」",
+      "form": "be eager to ~",
+      "examples": [], "registers": [],
+      "status": "learning", "favorite": false, "frequency": 3, "aiExtra": {},
+      "createdAt": 1783837100005
+    },
+    {
+      "id": "c-ig-6", "tags": ["English Express表現", "ネイティブ"],
+      "jp": "今夜出かけようかな",
+      "en": "I'm thinking of going out tonight.",
+      "pron": "", "kana": "",
+      "core": "「考えてる」。柔らかくてリアルな響きの表現",
+      "form": "be thinking of ~ing",
+      "examples": [], "registers": [],
+      "status": "learning", "favorite": false, "frequency": 4, "aiExtra": {},
+      "createdAt": 1783837100006
+    },
+    {
+      "id": "c-ig-7", "tags": ["English Express表現", "ネイティブ"],
+      "jp": "もう1個デザートいきたくなってる",
+      "en": "I'm tempted to eat another dessert.",
+      "pron": "", "kana": "",
+      "core": "「つい〜したくなる」。人間っぽさが出る表現",
+      "form": "be tempted to ~",
+      "examples": [], "registers": [],
+      "status": "learning", "favorite": false, "frequency": 3, "aiExtra": {},
+      "createdAt": 1783837100007
+    },
+    {
+      "id": "c-ig-8", "tags": ["日常会話", "ネイティブ"],
+      "jp": "無料生成回数を使い切りました。",
+      "en": "I used up all my free generations.",
+      "pron": "", "kana": "",
+      "core": "上限のあるリソース（回数・容量・お金など）を「使い果たした」ことを表す一般的な表現",
+      "form": "use up + 名詞 / run out of + 名詞",
+      "examples": [
+        "I used up all my storage on my phone.",
+        "We used up our entire budget for this month."
+      ],
+      "registers": [], "status": "learning", "favorite": false, "frequency": 0, "aiExtra": {},
+      "createdAt": 1783837100008
+    },
+    {
+      "id": "c-ig-9", "tags": ["日常会話", "ビジネス"],
+      "jp": "ローンがまだたくさん残ってる",
+      "en": "I still have a lot of my loan left to pay off.",
+      "pron": "", "kana": "",
+      "core": "借金・返済がまだ多く残っている状態を表す口語的な言い方",
+      "form": "have a lot of ~ left (to pay off) / still owe a lot on ~",
+      "examples": [
+        "I still owe a lot on my car loan.",
+        "We still have a long way to go before the mortgage is paid off."
+      ],
+      "registers": [], "status": "learning", "favorite": false, "frequency": 0, "aiExtra": {},
+      "createdAt": 1783837100009
+    },
+    {
+      "id": "c1783990346856287",
+      "tags": ["ビジネス", "旅行", "TOEIC"],
+      "jp": "展示は全部で１６のEXPOがあった",
+      "en": "There were 16 exhibitions in total.",
+      "pron": "ðər wər ˈsɪksˌtiːn ˌɛksɪˈbɪʃənz ɪn ˈtoʊtəl",
+      "kana": "ゼア ワー シックスティーン エクシビションズ イン トータル",
+      "core": "合計数を述べるシンプルな報告表現",
+      "form": "There were [数] [名詞] in total. / a total of [数] [名詞]",
+      "examples": [
+        "There were 16 exhibitions in total at the event.",
+        "A total of 16 expos were featured at the trade show.",
+        "The venue hosted 16 exhibitions in all."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "There were 16 expos altogether." },
+        { "label": "ビジネス", "phrase": "The event comprised a total of 16 exhibitions." }
+      ],
+      "status": "learning", "favorite": false, "frequency": 5,
+      "aiExtra": {
+        "similar": "\"in all\" / \"altogether\" / \"a total of ~\" はどれも「合計で」を意味する",
+        "nuance": "\"in total\" はやや改まった印象。\"altogether\" はよりカジュアル。\"a total of ~\" は数字を強調したいときに自然",
+        "mistakes": "\"EXPO\" をそのまま使いがちだが、英語では \"exhibition\" または \"expo\" が自然。複数形の \"expos / exhibitions\" を忘れないこと",
+        "paraphrase": "The event featured a total of 16 expos.",
+        "formalCasual": "フォーマル→ \"The event comprised 16 exhibitions in total.\" / カジュアル→ \"There were 16 expos altogether.\""
+      },
+      "createdAt": 1783990346856
+    },
+    {
+      "id": "c1784100193787925",
+      "tags": ["教育", "TOEIC", "ビジネス"],
+      "jp": "同年代の中での順位",
+      "en": "rank among peers",
+      "pron": "", "kana": "",
+      "core": "同じ年齢・立場の集団内での相対的な位置づけ",
+      "form": "rank among peers / ranking among peers / peer ranking / percentile rank among peers",
+      "examples": [
+        "His test score puts him in the top 10% rank among his peers nationwide.",
+        "She consistently ranks among the highest in her peer group for reading ability."
+      ],
+      "registers": [],
+      "status": "learning", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "percentile rank（百分位順位）/ standing among age group / cohort ranking",
+        "nuance": "\"rank among peers\"は日常・教育場面で広く使える汎用表現。\"percentile rank\"は統計的・テスト文脈で具体的な数値を伴う場合に使う。\"cohort ranking\"はより学術・医療・研究寄りのフォーマルな表現。",
+        "mistakes": "\"peers\"を省いて\"rank among ages\"とするのは不自然。\"同年代\"＝\"same age\"ではなく、集団を表す\"peers\"や\"age group\"を使うのが自然。",
+        "paraphrase": "How does she compare to others her age? / Where does he stand among kids his age?",
+        "formalCasual": "フォーマル: ranking within one's age cohort／カジュアル: how you compare to kids your age"
+      },
+      "createdAt": 1784100193787
+    },
+    {
+      "id": "c178410057237151",
+      "tags": ["スポーツ", "ネイティブ", "日常動作"],
+      "jp": "リズムよく腕を前後に振る動き",
+      "en": "swing your arms back and forth",
+      "pron": "/swɪŋ jər ɑːrmz bæk ənd fɔːrθ/", "kana": "",
+      "core": "規則的・リズミカルに腕を振る運動イメージ",
+      "form": "swing one's arms + back and forth / rhythmically / while walking",
+      "examples": [
+        "Make sure to swing your arms back and forth naturally when you walk — it improves your posture and balance."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "Swing your arms like this — back and forth, nice and easy." },
+        { "label": "スポーツ・指導", "phrase": "Focus on swinging your arms back and forth in a controlled, rhythmic motion." }
+      ],
+      "status": "learning", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "wave your arms（左右に大きく振る）/ pump your arms（力強く前後に動かす、主にランニング）/ flail your arms（ばたばたと無秩序に振り回す）",
+        "nuance": "swing は規則的でリズミカルな往復運動。pump はパワーと推進力を強調。wave は横方向や注目を引く動き。flail は制御できていない印象を与える。",
+        "mistakes": "「振る」を shake で表現しがちだが、shake は小刻みに震わせるイメージで腕の大きな前後運動には不自然。また「前後に」を front and back と言う誤りが多いが、英語では back and forth が定型表現。",
+        "paraphrase": "move your arms in a back-and-forth rhythm / let your arms pendulum naturally as you walk",
+        "formalCasual": "フォーマルでは \"maintain a rhythmic back-and-forth arm swing\"、カジュアルでは \"just swing your arms back and forth\" と言うのが自然。"
+      },
+      "createdAt": 1784100572371
+    },
+    {
+      "id": "c1784104551822581",
+      "tags": ["ビジネス", "会議", "プレゼン"],
+      "jp": "その他の注目すべきハイライト",
+      "en": "Other Notable Highlights",
+      "pron": "ˈʌðər ˈnoʊtəbl ˈhaɪlaɪts", "kana": "",
+      "core": "「特筆すべきその他の見どころ」という見出し的まとめ表現",
+      "form": "Other notable highlights include... / Among other notable highlights...",
+      "examples": [
+        "Other notable highlights include a 20% increase in user engagement and the launch of our new mobile app."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "Other cool things worth mentioning..." },
+        { "label": "ビジネス", "phrase": "Additional highlights of note / Further key takeaways" }
+      ],
+      "status": "learning", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "Additional highlights / Further highlights / Other key points / Honorable mentions",
+        "nuance": "\"Notable\" が「特筆に値する」という価値判断を含む点が特徴。\"Additional highlights\" はより中立的で事務的。\"Honorable mentions\" は賞や評価の文脈で使われることが多い。",
+        "mistakes": "\"notable\" を \"noticeable\"（気づきやすい）と混同しやすい。\"noticeable highlights\" は不自然なため注意。",
+        "paraphrase": "A few more things worth highlighting... / Here are some other standout moments...",
+        "formalCasual": "フォーマル：「Additional points of note include...」／カジュアル：「A few other things to mention...」"
+      },
+      "createdAt": 1784104551822
+    },
+    {
+      "id": "c1784104664420632",
+      "tags": ["ビジネス", "テクノロジー", "専門用語"],
+      "jp": "自動車デザインへの応用",
+      "en": "Applications in Automotive Design",
+      "pron": "ˌæplɪˈkeɪʃənz ɪn ˈɔːtəmoʊtɪv dɪˈzaɪn", "kana": "",
+      "core": "技術や素材・手法を自動車のデザイン分野に活かすこと",
+      "form": "applications in [field] / apply A to automotive design / design applications for vehicles",
+      "examples": [
+        "New materials science applications in automotive design have made cars both lighter and safer."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "How this tech gets used in car design" },
+        { "label": "ビジネス", "phrase": "Practical applications in automotive design and manufacturing" }
+      ],
+      "status": "learning", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "\"use in car design\" / \"automotive design solutions\" / \"applications in vehicle engineering\"",
+        "nuance": "\"applications in automotive design\" は学術・技術文書でよく使われる格式ある表現。\"use in car design\" はより口語的で非専門家向け。",
+        "mistakes": "\"application\" を単数形にしてしまう（✗ Application in automotive design）→ 複数形が自然。",
+        "paraphrase": "How [technology/material] is used in car design / Real-world uses of [X] in vehicle development",
+        "formalCasual": "フォーマル: \"Applications in Automotive Design\" / カジュアル: \"how this is used in car design\""
+      },
+      "createdAt": 1784104664420
+    },
+    {
+      "id": "c1784162828199103",
+      "tags": ["ビジネス", "技術", "自動車"],
+      "jp": "量産車に現在採用されているコンポーネント",
+      "en": "components currently used in production vehicles",
+      "pron": "", "kana": "",
+      "core": "",
+      "form": "components used in ~／components adopted for ~／parts currently deployed in ~",
+      "examples": [
+        "These are the components currently used in production vehicles, so reliability is critical."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "parts that are already in real cars" },
+        { "label": "ビジネス", "phrase": "components currently deployed / integrated in series-production vehicles" }
+      ],
+      "status": "learning", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "parts used in mass-production cars／components integrated into commercial vehicles／series-production components",
+        "nuance": "\"production vehicles\"は市販・量産車を指す業界用語。\"commercial vehicles\"はトラック等の商用車を指す場合があるため文脈注意。",
+        "mistakes": "\"adopted\"は日本語の「採用された」に引きずられやすいが、英語では\"used\"・\"integrated\"・\"deployed\"の方が自然。",
+        "paraphrase": "parts currently in use on production vehicles／components already integrated into series-production models",
+        "formalCasual": "フォーマル: components currently deployed in series-production vehicles／カジュアル: parts that are already in real cars"
+      },
+      "createdAt": 1784162828200
+    },
+    {
+      "id": "c1784273075987898",
+      "tags": ["ビジネス", "会議", "TOEIC"],
+      "jp": "日々の業務をアシスタントに委任するつもりです。",
+      "en": "I'm planning to delegate my daily tasks to my assistant.",
+      "pron": "aɪm ˈplænɪŋ tə ˈdɛlɪɡeɪt maɪ ˈdeɪli tæsks tə maɪ əˈsɪstənt",
+      "kana": "アイム プラニング トゥ デリゲイト マイ デイリー タスクス トゥ マイ アシスタント",
+      "core": "権限や仕事を人に任せる・移譲する",
+      "form": "delegate A to B（AをBに委任する）/ delegate tasks / delegate responsibility",
+      "examples": [],
+      "registers": [
+        { "label": "カジュアル", "phrase": "I'm going to hand off my daily stuff to my assistant." }
+      ],
+      "status": "learning", "favorite": false, "frequency": 4,
+      "aiExtra": {
+        "similar": "assign（割り当てる）/ hand over（引き渡す）/ entrust（信頼して任せる）",
+        "nuance": "delegateは権限ごと移譲するニュアンス。assignは単なる作業の割り振り、entrustは信頼感が強く、hand overはより口語的で完全な引き渡しを含意する。",
+        "mistakes": "「委任する」をcommitやentrust toと訳しがちだが、業務の権限移譲にはdelegateが最も自然。また「delegate to」の前置詞toを忘れやすい。",
+        "paraphrase": "I'm planning to have my assistant take over my daily tasks.",
+        "formalCasual": "フォーマル→I intend to delegate my routine duties to my assistant. / カジュアル→I'm gonna let my assistant handle the day-to-day stuff."
+      },
+      "createdAt": 1784273075987
+    },
+    {
+      "id": "c-again-2",
+      "tags": ["日常会話", "ネイティブ"],
+      "jp": "また一つ（軽いノリで「またこれか」）",
+      "en": "Another one.",
+      "pron": "əˈnʌðər wʌn", "kana": "アナザー ワン",
+      "core": "似たようなことが立て続けに起きたときの、軽い/ネタっぽいノリでの一言（DJ Khaledのミームでも有名）",
+      "form": "Another one. / And another one.",
+      "examples": [
+        "The app crashed again. Another one, lol."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "Another one, lol." },
+        { "label": "ノリ・ミーム的", "phrase": "And another one! (DJ Khaled風)" }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "Not this again（うんざり感が強い、深刻寄り） / Here we go again（繰り返しパターンへの呆れ）",
+        "nuance": "\"Another one\" は「またか」の中でも一番軽く、ネタ・冗談っぽく使われることが多い。深刻なトラブルには \"Not this again\" の方が合う。",
+        "mistakes": "深刻な場面（クレーム対応など）で \"Another one\" を使うと、軽薄に聞こえる可能性がある。場面を選んで使うのがポイント。",
+        "paraphrase": "Here we go again. / And here's another one.",
+        "formalCasual": "ほぼカジュアル専用の表現。フォーマルな場では \"This is another instance of the same issue.\" のように言い換える。"
+      },
+      "createdAt": 1784300000002
+    },
+    {
+      "id": "c-fight-1",
+      "tags": ["日常会話", "ネイティブ"],
+      "jp": "喧嘩しました",
+      "en": "We had a fight.",
+      "pron": "wi hæd ə faɪt", "kana": "ウィ ハド ア ファイト",
+      "core": "口論・言い争いをしたことを表す日常的な言い方（暴力的な意味ではなく、口喧嘩を指すことが多い）",
+      "form": "have a fight (with 人) / get into a fight / argue with 人",
+      "examples": [
+        "We had a fight last night about something silly."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "We got into it last night." },
+        { "label": "丁寧", "phrase": "We had a disagreement." }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 5,
+      "aiExtra": {
+        "similar": "argue（議論・口論する）/ have a disagreement（意見の相違があった、より穏やかな言い方）/ get into it（口語的で「もめた」）",
+        "nuance": "\"have a fight\" は日常会話で最も一般的。\"argue\" は行為そのものに焦点、\"disagreement\" はより丁寧で対立の度合いが弱く聞こえる。",
+        "mistakes": "\"fight\" は物理的な喧嘩（殴り合い）を連想しがちだが、日常会話では単なる口喧嘩・言い争いを指すことがほとんど。文脈で判断される。",
+        "paraphrase": "We got into an argument. / We didn't see eye to eye last night.",
+        "formalCasual": "フォーマル: We had a disagreement. / カジュアル: We got into it."
+      },
+      "createdAt": 1784300000003
+    },
+    {
+      "id": "c1784517285937525",
+      "tags": ["ビジネス", "TOEIC", "メール"],
+      "jp": "業務上支障のない英語力",
+      "en": "Professional working proficiency",
+      "pron": "/prəˈfɛʃənl ˈwɜːrkɪŋ prəˈfɪʃənsi/",
+      "kana": "プロフェッショナル ワーキング プロフィシェンシー",
+      "core": "仕事の現場で実際に通用するレベルの語学力",
+      "form": "professional working proficiency in [language] / have/demonstrate professional working proficiency",
+      "examples": ["I have professional working proficiency in English, with experience presenting at international conferences and drafting client proposals."],
+      "registers": [],
+      "status": "unlearned", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "Full professional proficiency（より上位）/ Limited working proficiency（より下位）/ Business level English（日本でよく使われる表現）",
+        "nuance": "LinkedInやILRスケールで使われる公式な分類語。\"Business level\"より客観的・国際的に通じやすい。",
+        "mistakes": "\"business level\"は日本人には馴染み深いが国際的には曖昧。履歴書やLinkedInでは\"professional working proficiency\"の方が明確に伝わる。",
+        "paraphrase": "Able to conduct business effectively in English / Fluent in English for professional use",
+        "formalCasual": "フォーマル（履歴書・LinkedIn）: Professional working proficiency in English / カジュアル: I'm fluent enough to work in English without any issues."
+      },
+      "createdAt": 1784517285937
+    },
+    {
+      "id": "c1784597216544172",
+      "tags": ["ビジネス", "TOEIC", "メール"],
+      "jp": "昨日までの合計",
+      "en": "Total as of yesterday",
+      "pron": "ˈtoʊtl æz əv ˈjɛstərdeɪ",
+      "kana": "トータル アズ オブ イエスタデイ",
+      "core": "「as of ～」で「～時点での」という基準時を示す",
+      "form": "total as of [date] / balance as of [date] / figures as of [date]",
+      "examples": ["The total sales figure as of yesterday is $42,000."],
+      "registers": [
+        { "label": "カジュアル", "phrase": "Everything up to yesterday adds up to about 42K." },
+        { "label": "ビジネス", "phrase": "Please find the cumulative total as of yesterday's close of business." }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 4,
+      "aiExtra": {
+        "similar": "\"up to yesterday\" / \"through yesterday\" / \"as of yesterday's date\"",
+        "nuance": "\"up to\" はやや口語的で範囲の終端を示す。\"as of\" はビジネス文書で標準的で、特定時点の状態を示すニュアンスが強い。",
+        "mistakes": "\"Total up to yesterday\" は文法的に通じるが、ビジネス英語では \"as of\" を使わないと不自然に聞こえる。",
+        "paraphrase": "The cumulative total through yesterday / Running total as of yesterday",
+        "formalCasual": "フォーマル→ cumulative total as of [date] / カジュアル→ everything up to yesterday"
+      },
+      "createdAt": 1784597216544
+    },
+    {
+      "id": "c1784602569940399",
+      "tags": ["ビジネス", "ネイティブ", "メール"],
+      "jp": "私の記憶が間違っていました",
+      "en": "I was wrong about that. / My memory was off.",
+      "pron": "aɪ wəz rɔŋ əˈbaʊt ðæt / maɪ ˈmɛməri wəz ɔf",
+      "kana": "アイ ワズ ローング アバウト ザット / マイ メモリ ワズ オフ",
+      "core": "記憶の誤りを素直に認める表現",
+      "form": "I was wrong about + 名詞句 / My memory was off about + 名詞句 / I must have been mistaken",
+      "examples": ["I was wrong about the meeting time — it's at 3, not 2."],
+      "registers": [
+        { "label": "カジュアル", "phrase": "Oops, my bad — I got that wrong." },
+        { "label": "ビジネス", "phrase": "I apologize for the confusion — I was mistaken about that." }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 5,
+      "aiExtra": {
+        "similar": "I made a mistake（行動の誤り）/ I misremembered（記憶違いに特化）/ I stand corrected（指摘を受けて認める）",
+        "nuance": "\"My memory was off\" は記憶のズレに限定。\"I was wrong\" はより広く誤りを認める汎用表現。",
+        "mistakes": "「My memory is wrong」と言いがち → ネイティブは \"wrong\" より \"off\" や \"mistaken\" を使うのが自然",
+        "paraphrase": "I must have been mistaken. / I got that wrong. / I stand corrected.",
+        "formalCasual": "カジュアル→ I got that totally wrong! / フォーマル→ I believe I was mistaken in my earlier recollection."
+      },
+      "createdAt": 1784602569941
+    },
+    {
+      "id": "c1784607314951599",
+      "tags": ["ビジネス", "TOEIC", "メール"],
+      "jp": "1億3千万円",
+      "en": "130 million yen",
+      "pron": "/wʌn ˈhʌndrəd ˈθɜːrti ˈmɪljən jɛn/",
+      "kana": "ワン ハンドレッド サーティ ミリオン イェン",
+      "core": "",
+      "form": "[数字] million yen / approximately 130 million yen / worth 130 million yen",
+      "examples": ["The project budget is set at 130 million yen for the next fiscal year."],
+      "registers": [
+        { "label": "カジュアル", "phrase": "a hundred and thirty million yen" },
+        { "label": "ビジネス", "phrase": "JPY 130 million" }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "130,000,000 yen（数字表記）/ JPY 130M（略式）",
+        "nuance": "JPY 130 million は金融・契約書で使われる正式表記。130M yen は略式でカジュアルな資料向き。",
+        "mistakes": "日本語の「億」に直接対応する英単語はないため、「one oku yen」と言うのは誤り。必ず million に変換する。",
+        "paraphrase": "JPY 130 million / ¥130 million",
+        "formalCasual": "フォーマル: JPY 130 million / カジュアル: a hundred and thirty million yen"
+      },
+      "createdAt": 1784607314951
+    },
+    {
+      "id": "c1784805201268994",
+      "tags": ["自動車"],
+      "jp": "ベルトモール（自動車のドアやガラス周りのゴム製トリム）",
+      "en": "belt molding / weatherstrip trim",
+      "pron": "", "kana": "", "core": "",
+      "form": "replace the belt molding / worn-out weatherstrip trim / door belt molding seal",
+      "examples": ["The mechanic said the belt molding on the driver's door needs to be replaced because it's letting in wind noise."],
+      "registers": [
+        { "label": "カジュアル", "phrase": "That rubber trim around the window is worn out." },
+        { "label": "ビジネス", "phrase": "We need to order a replacement belt molding for the driver's side door." }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 2,
+      "aiExtra": {
+        "similar": "weatherstrip（ドア・窓全体のシール材）、door trim（ドア内装全般）、window seal（ガラス周りのシール）",
+        "nuance": "belt moldingはドア上端の窓枠ラインに特化した部品を指し、weatherstripはドア全周のシール材全般を指す。",
+        "mistakes": "「モール」をそのままmallと書くのは誤り。moldingまたはmouldingが正しい。",
+        "paraphrase": "door window trim strip / outer belt weatherstrip",
+        "formalCasual": "フォーマル（整備書・発注）ではbelt molding assembly / カジュアル（会話）ではthat rubber strip around the window"
+      },
+      "createdAt": 1784805201268
+    },
+    {
+      "id": "c1785110208070251",
+      "tags": ["旅行", "文化", "ネイティブ"],
+      "jp": "陶器",
+      "en": "pottery",
+      "pron": "/ˈpɒtəri/",
+      "kana": "ポタリ",
+      "core": "土を焼いて作った器・焼き物全般",
+      "form": "pottery class / handmade pottery / a piece of pottery / pottery wheel",
+      "examples": ["She's been taking a pottery class every Saturday and absolutely loves it."],
+      "registers": [
+        { "label": "カジュアル", "phrase": "ceramics（アート文脈でよく使われる）" },
+        { "label": "ビジネス", "phrase": "ceramic ware / ceramic products（製品・取引文脈）" }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "ceramics（陶芸・陶磁器全般）, earthenware（素焼き・土器）, porcelain（磁器・白く精製されたもの）",
+        "nuance": "potteryは土製の焼き物全般を指す日常語。ceramicsはアートや産業文脈で広く使われ磁器も含む。",
+        "mistakes": "potteryは不可算名詞なので「a pottery」とは言えない。陶器1点はa piece of potteryと表現する。",
+        "paraphrase": "ceramic ware, stoneware, fired clay objects",
+        "formalCasual": "日常会話ではpotteryで十分。フォーマル・学術・ビジネス文脈ではceramicsまたはceramic productsが自然。"
+      },
+      "createdAt": 1785110208070
+    },
+    {
+      "id": "c1785377612715376",
+      "tags": ["ビジネス", "製造・物流", "注意書き"],
+      "jp": "この面に緩衝（接触）しないように",
+      "en": "Make sure nothing touches this surface.",
+      "pron": "meɪk ʃʊr ˈnʌθɪŋ ˈtʌtʃɪz ðɪs ˈsɜːrfɪs",
+      "kana": "メイク シュア ナッシング タッチィズ ディス サーフィス",
+      "core": "「面を守る」＝接触・干渉を避けるよう注意を促す",
+      "form": "Make sure nothing touches ~. / Keep ~ away from this surface. / Do not allow ~ to contact this surface.",
+      "examples": ["Make sure nothing touches this surface during transport, as it scratches easily."],
+      "registers": [
+        { "label": "カジュアル", "phrase": "Don't let anything touch this side." },
+        { "label": "ビジネス", "phrase": "Please ensure this surface remains free from contact at all times." }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "\"Avoid contact with this surface.\"（接触を避けるよう指示）/ \"Keep clear of this surface.\"（近づかないよう指示）",
+        "nuance": "\"Make sure nothing touches\"は能動的に管理するニュアンス。\"Avoid contact\"は受け手に自制を求める表現。",
+        "mistakes": "「緩衝」をbufferと訳すと機械的すぎる。また\"don't touch this face\"とするとfaceは顔の意味になるため、surfaceを使うこと。",
+        "paraphrase": "This surface must not be touched. / Keep all objects away from this surface.",
+        "formalCasual": "カジュアル→\"Don't touch this side.\" フォーマル→\"Ensure no contact is made with this surface at any time.\""
+      },
+      "createdAt": 1785377612715
+    },
+    {
+      "id": "c1785377857224489",
+      "tags": ["ビジネス", "会議", "ネイティブ"],
+      "jp": "少し違う見方かもしれませんが、私の考えを共有させてください。",
+      "en": "I may have a different perspective on this, but I'd like to share my thoughts",
+      "pron": "", "kana": "",
+      "core": "角度を変えて遠慮がちに意見を切り出す",
+      "form": "I might be + -ing / let me share my + [perspective / thoughts / view]",
+      "examples": ["I might be looking at this differently, but let me share my perspective — the delay seems more like a resource issue than a planning one."],
+      "registers": [
+        { "label": "カジュアル", "phrase": "I might see this a bit differently, but hear me out." },
+        { "label": "ビジネス", "phrase": "If I may offer a slightly different perspective, I'd like to share my thoughts on this." }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 4,
+      "aiExtra": {
+        "similar": "\"I see it a bit differently.\" / \"From where I stand, ...\" / \"Let me offer another angle.\"",
+        "nuance": "本フレーズは謙遜しつつも発言権を取る、会議での割り込みに最適なバランス。",
+        "mistakes": "\"I think differently\" は「私は変わり者です」に近いニュアンスになるため避ける。\"perspective\" の方がビジネス文脈で洗練されて聞こえる。",
+        "paraphrase": "\"I may be off base here, but I'd like to throw out a different take.\"",
+        "formalCasual": "フォーマル → \"With respect, I'd like to offer an alternative viewpoint.\" / カジュアル → \"I'm not sure I see it that way — can I share what I'm thinking?\""
+      },
+      "createdAt": 1785377857224
+    },
+    {
+      "id": "c1785381282371494",
+      "tags": [],
+      "jp": "一つ懸念しているのは、この方向性だと車の個性が弱く見える可能性があることです。",
+      "en": "One concern I have is that this direction might make the vehicle look less distinctive",
+      "pron": "", "kana": "", "core": "", "form": "",
+      "examples": [], "registers": [],
+      "status": "unlearned", "favorite": false, "frequency": 0,
+      "aiExtra": {},
+      "createdAt": 1785381282371
+    },
+    {
+      "id": "c1785407667217833",
+      "tags": ["ネイティブ", "日常会話", "ビジネス"],
+      "jp": "言うのは簡単だよね",
+      "en": "Easier said than done.",
+      "pron": "", "kana": "",
+      "core": "実行の難しさを婉曲に指摘する",
+      "form": "Easier said than done., That's easier said than done., It's easier said than done.",
+      "examples": ["\"Just be more confident!\" \"Well, that's easier said than done.\""],
+      "registers": [
+        { "label": "カジュアル", "phrase": "Easier said than done!" },
+        { "label": "ビジネス", "phrase": "That's easier said than done in practice." }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 5,
+      "aiExtra": {
+        "similar": "\"It's not that simple.\" / \"That's not as easy as it sounds.\"",
+        "nuance": "\"Easier said than done\"はことわざ的な響きで共感を得やすい。\"It's not that simple\"はより直接的な反論。",
+        "mistakes": "\"Easy to say\"と言いがちだが、ネイティブはほぼ使わない慣用表現なので丸ごと覚えるのが正解",
+        "paraphrase": "That sounds simple, but doing it is a whole different story.",
+        "formalCasual": "カジュアルでは\"Easier said than done!\"と短く言い切る。フォーマルでは\"This is, of course, easier said than done.\"のように文中に組み込む。"
+      },
+      "createdAt": 1785407667217
+    },
+    {
+      "id": "c1785481018558636",
+      "tags": ["日常", "インテリア", "ビジネス"],
+      "jp": "観音開き（左右に開く両開き扉）",
+      "en": "French doors / double doors that open outward",
+      "pron": "ˈfrɛntʃ dɔːrz / ˈdʌbəl dɔːrz",
+      "kana": "フレンチ ドーズ / ダブル ドーズ",
+      "core": "左右対称に外側へ開く両開き扉",
+      "form": "French doors, double doors, doors that open outward, bifold-style opening",
+      "examples": [
+        "The cabinet has French doors that swing open to reveal all the storage inside."
+      ],
+      "registers": [
+        { "label": "カジュアル", "phrase": "It opens like French doors." },
+        { "label": "ビジネス", "phrase": "The unit features a double-door design that opens outward for full accessibility." }
+      ],
+      "status": "unlearned", "favorite": false, "frequency": 3,
+      "aiExtra": {
+        "similar": "double doors（両開き全般）/ bifold doors（折りたたみ式）/ swinging doors（押し開き扉）",
+        "nuance": "\"French doors\" は主にガラス入りの観音開き扉を指し、おしゃれな印象。\"double doors\" はより中立で業務用・大型扉にも使える。日本語の「観音開き」は冷蔵庫・食器棚・車のドアにも広く使うが、英語では文脈に応じて使い分けが必要。",
+        "mistakes": "「観音開き」を直訳しようとして \"Kannon-style door\" などと言っても通じない。また \"French door\" を単数で使うと扉1枚だけを指すため、両開きの構造を表すには複数形 \"French doors\" を使うのが自然。",
+        "paraphrase": "The fridge has a two-door setup that opens from the middle. / It's designed with outward-opening double doors.",
+        "formalCasual": "カジュアル→ \"It opens like French doors.\"; フォーマル/仕様書→ \"Features a center-split, outward-opening double-door configuration.\""
+      },
+      "createdAt": 1785481018559
+    }
+  ];
+
+  const LS_PREFIX = 'wc_';
+  function getDeviceId(){
+    let id = null;
+    try{ id = localStorage.getItem(LS_PREFIX+'deviceId'); }catch(e){}
+    if(!id){
+      id = 'dev-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,10);
+      try{ localStorage.setItem(LS_PREFIX+'deviceId', id); }catch(e){}
+    }
+    return id;
+  }
+  const DEVICE_ID = getDeviceId();
+
+  async function storageGet(key){
+    // localStorage is the reliable store for a standalone downloaded file.
+    try{
+      const raw = localStorage.getItem(LS_PREFIX+key);
+      if(raw!==null) return raw;
+    }catch(e){}
+    // fall back to Claude's in-preview storage (only exists inside the chat preview)
+    if(window.storage){
+      try{ const res = await window.storage.get(key); return res ? res.value : null; }catch(e){}
+    }
+    return null;
+  }
+  async function storageSet(key, value){
+    try{ localStorage.setItem(LS_PREFIX+key, value); }catch(e){}
+    if(window.storage){
+      try{ await window.storage.set(key, value); }catch(e){}
+    }
+  }
+
+  // ---------- reconnect-conflict detection (per-device sync metadata) ----------
+  function getLocalSyncMeta(){
+    try{ const raw = localStorage.getItem(LS_PREFIX+'lastSyncMeta'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
+  }
+  function setLocalSyncMeta(meta){
+    try{ localStorage.setItem(LS_PREFIX+'lastSyncMeta', JSON.stringify(meta)); }catch(e){}
+  }
+  async function getCloudSyncMeta(){
+    if(!window.storage) return null;
+    try{ const res = await window.storage.get('syncMeta'); return res && res.value ? JSON.parse(res.value) : null; }catch(e){ return null; }
+  }
+  async function writeSyncMeta(){
+    const meta = { deviceId: DEVICE_ID, updatedAt: Date.now() };
+    setLocalSyncMeta(meta);
+    if(window.storage){
+      try{ await window.storage.set('syncMeta', JSON.stringify(meta)); }catch(e){}
+    }
+    return meta;
+  }
+
+  // Checks whether a DIFFERENT device wrote newer data than what we last synced.
+  // Same-device writes, or cloud data we've already seen, sync silently (no prompt).
+  async function checkReconnectConflict(){
+    if(!window.storage) return; // no cloud counterpart to conflict with (standalone file)
+    const cloudMeta = await getCloudSyncMeta();
+    if(!cloudMeta) return; // nothing written to cloud yet
+    if(cloudMeta.deviceId === DEVICE_ID) return; // our own last write, nothing to resolve
+    const localMeta = getLocalSyncMeta();
+    if(localMeta && cloudMeta.updatedAt <= localMeta.updatedAt) return; // already seen this or older
+
+    // genuine conflict: another device wrote newer data than what we've synced
+    const cloudRaw = await storageGetCloudOnly('cards');
+    let cloudCards = [];
+    try{ cloudCards = cloudRaw ? JSON.parse(cloudRaw) : []; }catch(e){ cloudCards = []; }
+    const cloudCount = cloudCards.length;
+    const localCount = cards.length;
+    const cloudDate = new Date(cloudMeta.updatedAt).toLocaleString('ja-JP');
+
+    const choice = await showModal(
+      `別の端末で更新されたデータが見つかりました（${cloudDate}時点、${cloudCount}枚）。\nこの端末には現在${localCount}枚のデータがあります。\n\nどちらを使いますか？`,
+      [
+        {label:'この端末のデータを使う', value:'local'},
+        {label:'別端末のデータを使う', value:'cloud', primary:true}
+      ]
+    );
+    if(choice === 'cloud'){
+      cards = cloudCards.map(migrateCard);
+      await persist(); // also re-marks this device as the latest writer
+      pushHistory(); render();
+      showToast('別端末のデータを適用しました');
+    }else{
+      await persist(); // push our local version back up so cloud reflects our choice
+      showToast('この端末のデータを維持しました');
+    }
+  }
+  async function storageGetCloudOnly(key){
+    if(!window.storage) return null;
+    try{ const res = await window.storage.get(key); return res ? res.value : null; }catch(e){ return null; }
+  }
+
+  async function loadCards(){
+    try{
+      const raw = await storageGet('cards');
+      cards = raw ? JSON.parse(raw) : [];
+    }catch(e){ cards = []; }
+    cards = cards.map(migrateCard);
+
+    let seenIds = [];
+    try{
+      const rawSeen = await storageGet('seenPendingIds');
+      seenIds = rawSeen ? JSON.parse(rawSeen) : [];
+    }catch(e){ seenIds = []; }
+    const seenSet = new Set(seenIds);
+
+    const existingIds = new Set(cards.map(c=>c.id));
+    let added = false;
+    PENDING_CARDS.forEach(c => {
+      if(!existingIds.has(c.id) && !seenSet.has(c.id)){
+        cards.push(migrateCard(Object.assign({createdAt:Date.now()}, c)));
+        added = true;
+      }
+      seenSet.add(c.id);
+    });
+    if(added) await persist();
+    try{ await storageSet('seenPendingIds', JSON.stringify(Array.from(seenSet))); }catch(e){}
+
+    pushHistory();
+    render();
+
+    // check for conflicting updates from other devices (silent unless a genuine conflict exists)
+    checkReconnectConflict();
+  }
+  async function persist(){
+    try{ await storageSet('cards', JSON.stringify(cards)); }catch(e){ console.error('save failed', e); }
+    await writeSyncMeta();
+    try{ if(typeof pushToCloud === 'function') await pushToCloud(); }catch(e){ console.warn('cloud push failed', e); }
+  }
+  async function loadSettings(){
+    try{
+      const raw = await storageGet('settings');
+      if(raw) settings = Object.assign(settings, JSON.parse(raw));
+    }catch(e){}
+    $('settings-min-font').value = settings.minFontSize;
+    $('auto-backup').checked = !!settings.autoBackup;
+    applyTheme();
+  }
+  async function saveSettings(){
+    try{ await storageSet('settings', JSON.stringify(settings)); }catch(e){}
+  }
+  function applyTheme(){
+    document.getElementById('wcapp').setAttribute('data-theme', settings.theme);
+    $('btn-theme').textContent = settings.theme==='dark' ? '☀️ テーマ' : '🌙 テーマ';
+  }
+
+  function pushHistory(){
+    historyStack = historyStack.slice(0, historyIndex+1);
+    historyStack.push(JSON.stringify(cards));
+    if(historyStack.length>60) historyStack.shift();
+    historyIndex = historyStack.length-1;
+    updateUndoRedoButtons();
+  }
+  function undo(){
+    if(historyIndex<=0){ showToast('これ以上戻せません'); return; }
+    historyIndex--;
+    cards = JSON.parse(historyStack[historyIndex]);
+    persist(); render(); updateUndoRedoButtons(); showToast('元に戻しました');
+  }
+  function redo(){
+    if(historyIndex>=historyStack.length-1){ showToast('これ以上やり直せません'); return; }
+    historyIndex++;
+    cards = JSON.parse(historyStack[historyIndex]);
+    persist(); render(); updateUndoRedoButtons(); showToast('やり直しました');
+  }
+  function updateUndoRedoButtons(){
+    $('btn-undo').disabled = historyIndex<=0;
+    $('btn-redo').disabled = historyIndex>=historyStack.length-1;
+  }
+
+  function clearForm(){
+    editingId = null;
+    $('wc-form-title').innerHTML = '<span class="wc-dot"></span>カードを追加';
+    $('f-jp').value=''; $('f-en').value='';
+    $('f-form').value=''; $('f-ex1').value='';
+    $('f-registers').value=''; $('f-status').value='unlearned'; $('f-freq').value='0';
+    $('f-fav-btn').dataset.fav='false'; $('f-fav-btn').textContent='☆ お気に入り';
+    ['f-ai-similar','f-ai-nuance','f-ai-mistakes','f-ai-paraphrase','f-ai-formalcasual'].forEach(id=>$(id).value='');
+  }
+  function fillForm(c){
+    $('f-jp').value = c.jp; $('f-en').value = c.en;
+    $('f-form').value = c.form||'';
+    $('f-ex1').value = (c.examples&&c.examples[0])||'';
+    $('f-registers').value = (c.registers||[]).map(r=>r.label?`${r.label}: ${r.phrase}`:r.phrase).join('\n');
+    $('f-status').value = c.status||'unlearned'; $('f-freq').value = String(c.frequency||0);
+    $('f-fav-btn').dataset.fav = c.favorite ? 'true':'false'; $('f-fav-btn').textContent = c.favorite ? '★ お気に入り' : '☆ お気に入り';
+    const ai = c.aiExtra||{};
+    $('f-ai-similar').value = ai.similar||''; $('f-ai-nuance').value = ai.nuance||''; $('f-ai-mistakes').value = ai.mistakes||'';
+    $('f-ai-paraphrase').value = ai.paraphrase||''; $('f-ai-formalcasual').value = ai.formalCasual||'';
+  }
+  function flashFormPanel(){
+    const panel = $('wc-form-panel');
+    panel.scrollIntoView({ behavior:'smooth', block:'start' });
+    panel.classList.remove('flash'); void panel.offsetWidth; panel.classList.add('flash');
+    setTimeout(()=>panel.classList.remove('flash'), 1000);
+    $('f-jp').focus();
+  }
+  function parseRegisters(text){
+    return text.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+      const idx = l.search(/[:：]/);
+      if(idx===-1) return {label:'', phrase:l};
+      return {label:l.slice(0,idx).trim(), phrase:l.slice(idx+1).trim()};
+    });
+  }
+
+  async function saveCard(){
+    try{
+    const jp = $('f-jp').value.trim();
+    const en = $('f-en').value.trim();
+    if(!jp && !en){ await showAlertModal('日本語フレーズか英語フレーズ、どちらか一方は入力してください。'); return; }
+
+    const normEn = en.toLowerCase().trim();
+    const exact = cards.filter(c => c.id!==editingId && (
+      (jp && (c.jp||'').trim()===jp) || (normEn && (c.en||'').toLowerCase().trim()===normEn)
+    ));
+    const similar = cards.filter(c => c.id!==editingId && !exact.includes(c) && en && similarity(c.en, en) > 0.82);
+    if(exact.length || similar.length){
+      const list = exact.concat(similar).slice(0,3).map(c=>`・${c.jp||''} / ${c.en||''}`).join('\n');
+      const msg = (exact.length?'完全に一致する（またはほぼ同じ）カードが既にあります:\n':'似ているカードがあります:\n') + list + '\n\nそれでも保存しますか？';
+      if(!(await showConfirmModal(msg))) return;
+    }
+
+    const data = {
+      id: editingId || ('c'+Date.now()+Math.floor(Math.random()*1000)),
+      tags: [], jp, en,
+      pron: '', kana: '',
+      core: '', form: $('f-form').value.trim(),
+      examples: [$('f-ex1').value.trim()].filter(Boolean),
+      registers: parseRegisters($('f-registers').value),
+      status: $('f-status').value, favorite: $('f-fav-btn').dataset.fav==='true',
+      frequency: Number($('f-freq').value)||0,
+      aiExtra: {
+        similar: $('f-ai-similar').value.trim(), nuance: $('f-ai-nuance').value.trim(),
+        mistakes: $('f-ai-mistakes').value.trim(), paraphrase: $('f-ai-paraphrase').value.trim(),
+        formalCasual: $('f-ai-formalcasual').value.trim()
+      },
+      createdAt: editingId ? (cards.find(c=>c.id===editingId)||{}).createdAt || Date.now() : Date.now(),
+      updatedAt: Date.now()
+    };
+    const wasEdit = !!editingId;
+    if(wasEdit){ cards = cards.map(c => c.id===editingId ? data : c); }
+    else{ cards.push(data); }
+    persist(); pushHistory(); clearForm(); render();
+    showToast(wasEdit ? 'カードを更新しました' : 'カードを保存しました');
+    if(settings.autoBackup){
+      try{ exportJson(); }catch(e){ console.error('auto backup failed', e); }
+    }
+    }catch(err){
+      console.error('saveCard failed', err);
+      await showAlertModal('保存中にエラーが発生しました: ' + (err && err.message ? err.message : err));
+    }
+  }
+
+  function editCard(id){
+    const c = cards.find(x=>x.id===id);
+    if(!c) return;
+    editingId = id;
+    $('wc-form-title').innerHTML = '<span class="wc-dot"></span>カードを編集';
+    fillForm(c);
+    flashFormPanel();
+  }
+  function duplicateCard(id){
+    const c = cards.find(x=>x.id===id);
+    if(!c) return;
+    editingId = null;
+    $('wc-form-title').innerHTML = '<span class="wc-dot"></span>カードを複製（新規保存）';
+    fillForm(c);
+    flashFormPanel();
+  }
+  async function deleteCard(id){
+    try{
+      const before = cards.length;
+      cards = cards.filter(c=>c.id!==id);
+      if(cards.length===before){ console.warn('deleteCard: no matching id found', id); }
+      selection.delete(id);
+      persist(); pushHistory(); render();
+      showToast('カードを削除しました', '元に戻す', undo);
+    }catch(err){
+      console.error('deleteCard failed', err);
+      await showAlertModal('削除中にエラーが発生しました: ' + (err && err.message ? err.message : err));
+    }
+  }
+  function toggleFavoriteQuick(id){
+    cards = cards.map(c => c.id===id ? Object.assign({}, c, {favorite: !c.favorite, updatedAt:Date.now()}) : c);
+    persist(); pushHistory(); render();
+  }
+  function speak(text){
+    if(!('speechSynthesis' in window)) { showToast('この環境は音声再生に対応していません'); return; }
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US';
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  }
+
+  function toggleSelect(id){
+    if(selection.has(id)) selection.delete(id); else selection.add(id);
+    renderBulkBar();
+  }
+  function toggleSelectAll(){
+    const visible = getFilteredSortedCards();
+    const allSelected = visible.every(c=>selection.has(c.id)) && visible.length>0;
+    if(allSelected) visible.forEach(c=>selection.delete(c.id));
+    else visible.forEach(c=>selection.add(c.id));
+    render();
+  }
+  function renderBulkBar(){
+    const bar = $('wc-bulkbar');
+    if(selection.size>0){ bar.classList.add('show'); $('wc-bulk-count').textContent = `${selection.size}件選択中`; }
+    else{ bar.classList.remove('show'); }
+    updatePrintTargetCount();
+  }
+  function bulkMutate(fn, label){
+    cards = cards.map(c => selection.has(c.id) ? fn(c) : c);
+    persist(); pushHistory(); render(); showToast(label);
+  }
+  function bulkSetStatus(){
+    const s = $('bulk-status').value;
+    bulkMutate(c => Object.assign({}, c, {status:s, updatedAt:Date.now()}), '学習状態を変更しました');
+  }
+  function bulkSetFav(val){
+    bulkMutate(c => Object.assign({}, c, {favorite:val, updatedAt:Date.now()}), val?'お気に入りに追加しました':'お気に入りを解除しました');
+  }
+  async function bulkDelete(){
+    if(!(await showConfirmModal(`選択した${selection.size}枚を削除しますか？`))) return;
+    cards = cards.filter(c=>!selection.has(c.id));
+    selection.clear();
+    persist(); pushHistory(); render();
+    showToast('選択したカードを削除しました');
+  }
+
+  function getAllTags(){
+    const set = new Set();
+    cards.forEach(c => (c.tags||[]).forEach(t=>set.add(t)));
+    return Array.from(set).sort();
+  }
+  function matchesSearch(c, q){
+    if(!q) return true;
+    const hay = [c.jp, c.en, c.form, (c.examples||[]).join(' '), (c.registers||[]).map(r=>r.phrase).join(' ')].join(' ').toLowerCase();
+    return hay.includes(q.toLowerCase());
+  }
+  function getFilteredSortedCards(){
+    const q = $('filter-text').value.trim();
+    const statusF = $('filter-status').value;
+    const favOnly = $('filter-fav').checked;
+    const sortMode = $('sort-mode').value;
+
+    let list = cards.slice();
+    if(randomSampleIds){
+      const idset = new Set(randomSampleIds);
+      list = list.filter(c=>idset.has(c.id));
+    }
+    list = list.filter(c => {
+      if(!matchesSearch(c, q)) return false;
+      if(statusF && c.status!==statusF) return false;
+      if(favOnly && !c.favorite) return false;
+      return true;
+    });
+
+    switch(sortMode){
+      case 'old': list.sort((a,b)=>a.createdAt-b.createdAt); break;
+      case 'alpha': list.sort((a,b)=>(a.en||'').localeCompare(b.en||'')); break;
+      case 'status': { const order={unlearned:0,learning:1,mastered:2}; list.sort((a,b)=>order[a.status]-order[b.status]); break; }
+      case 'favorite': list.sort((a,b)=>(b.favorite?1:0)-(a.favorite?1:0)); break;
+      case 'freq': list.sort((a,b)=>(b.frequency||0)-(a.frequency||0)); break;
+      default: list.sort((a,b)=>b.createdAt-a.createdAt);
+    }
+    return list;
+  }
+
+  function pickRandom(n){
+    const pool = [];
+    cards.forEach(c => {
+      const weight = c.status==='unlearned' ? 3 : c.status==='learning' ? 2 : 1;
+      for(let i=0;i<weight;i++) pool.push(c.id);
+    });
+    const uniquePicked = new Set();
+    let guard = 0;
+    while(uniquePicked.size < Math.min(n, cards.length) && guard < 5000){
+      guard++;
+      const pick = pool[Math.floor(Math.random()*pool.length)];
+      if(pick) uniquePicked.add(pick);
+    }
+    randomSampleIds = Array.from(uniquePicked);
+    render();
+    showToast(`ランダム${randomSampleIds.length}枚を表示中`);
+  }
+
+  function render(){
+    try{
+    $('wc-count').textContent = cards.length + '枚 保存中';
+
+    const list = $('wc-list');
+    const filtered = getFilteredSortedCards();
+    if(filtered.length===0){
+      list.innerHTML = '<div class="wc-empty">条件に一致するカードがありません。</div>';
+    }else{
+      list.innerHTML = filtered.map(c => {
+        const freqStr = '★'.repeat(c.frequency||0) + '☆'.repeat(5-(c.frequency||0));
+        return `
+      <div class="wc-item" style="--cat:var(--accent)">
+        <input type="checkbox" data-sel="${c.id}" ${selection.has(c.id)?'checked':''}>
+        <div class="wc-item-main">
+          <div class="wc-chiprow">
+            <span class="wc-statuschip ${c.status}">${STATUS_LABEL[c.status]}</span>
+            ${c.frequency ? `<span class="wc-freq">${freqStr}</span>` : ''}
+          </div>
+          <div class="wc-jp">${c.jp ? escapeHtml(c.jp) : '<span style="color:var(--ink-faint);font-style:italic;">（日本語未入力）</span>'}</div>
+          <div class="wc-en">${c.en ? escapeHtml(c.en) : '<span style="color:var(--ink-faint);font-style:italic;">（英語未入力）</span>'}
+            <button class="wc-speak-btn" data-speak="${c.id}" title="発音を再生">🔊</button>
+          </div>
+        </div>
+        <div class="wc-item-actions">
+          <button class="wc-star-toggle ${c.favorite?'on':''}" data-fav="${c.id}" title="お気に入り">${c.favorite?'★':'☆'}</button>
+          <div class="wc-item-actions-row">
+            <button class="wc-btn wc-btn-ghost wc-btn-small" data-edit="${c.id}">編集</button>
+            <button class="wc-btn wc-btn-ghost wc-btn-small" data-dup="${c.id}">複製</button>
+            <button class="wc-btn wc-btn-danger wc-btn-small" data-del="${c.id}">削除</button>
+          </div>
+        </div>
+      </div>`;
+      }).join('');
+      list.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click', ()=>editCard(b.getAttribute('data-edit'))));
+      list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', ()=>deleteCard(b.getAttribute('data-del'))));
+      list.querySelectorAll('[data-dup]').forEach(b=>b.addEventListener('click', ()=>duplicateCard(b.getAttribute('data-dup'))));
+      list.querySelectorAll('[data-fav]').forEach(b=>b.addEventListener('click', ()=>toggleFavoriteQuick(b.getAttribute('data-fav'))));
+      list.querySelectorAll('[data-speak]').forEach(b=>b.addEventListener('click', ()=>{
+        const c = cards.find(x=>x.id===b.getAttribute('data-speak')); if(c) speak(c.en);
+      }));
+      list.querySelectorAll('[data-sel]').forEach(cb=>cb.addEventListener('change', ()=>toggleSelect(cb.getAttribute('data-sel'))));
+    }
+    renderBulkBar();
+    renderStats();
+    updateUndoRedoButtons();
+    }catch(err){
+      console.error('render failed', err);
+      showAlertModal('画面の更新中にエラーが発生しました: ' + (err && err.message ? err.message : err));
+    }
+  }
+
+  function renderStats(){
+    const total = cards.length;
+    const mastered = cards.filter(c=>c.status==='mastered').length;
+    const learning = cards.filter(c=>c.status==='learning').length;
+    const favCount = cards.filter(c=>c.favorite).length;
+    const rate = total ? Math.round(mastered/total*100) : 0;
+    $('wc-stats').innerHTML = `
+      <div class="wc-statbox"><div class="n">${total}</div><div class="l">カード総数</div></div>
+      <div class="wc-statbox"><div class="n">${rate}%</div><div class="l">習得率</div></div>
+      <div class="wc-statbox"><div class="n">${learning}</div><div class="l">学習中</div></div>
+      <div class="wc-statbox"><div class="n">${favCount}</div><div class="l">お気に入り</div></div>
+    `;
+  }
+
+  function runQualityCheck(){
+    const issues = [];
+    cards.forEach(c => {
+      const problems = [];
+      if(!c.jp || !c.en) problems.push('必須項目（日本語/英語）が未入力');
+      (c.examples||[]).forEach((e,i) => { if(e.length>70) problems.push(`例文${i+1}が長すぎます（${e.length}文字）`); });
+      const density = (c.en||'').length + (c.pron||'').length + (c.kana||'').length + (c.core||'').length + (c.form||'').length + (c.examples||[]).join('').length;
+      if(density>260) problems.push('印刷時に文字がはみ出す可能性があります（内容が多すぎます）');
+      if(problems.length) issues.push({card:c, problems});
+    });
+    const box = $('wc-quality-list');
+    if(issues.length===0){ box.innerHTML = '<div style="font-size:12px;color:var(--ink-soft);">問題は見つかりませんでした。</div>'; return; }
+    box.innerHTML = issues.map(i => `<div class="wc-quality-item"><b>${escapeHtml(i.card.jp)}</b> / ${escapeHtml(i.card.en)}<br>${i.problems.map(escapeHtml).join(' ・ ')}</div>`).join('');
+  }
+
+  function exportJson(){
+    const blob = new Blob([JSON.stringify(cards, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'word_cards.json'; a.click();
+    URL.revokeObjectURL(url);
+  }
+  function showExportText(){
+    $('wc-export-text-wrap').style.display = 'block';
+    const ta = $('wc-export-text');
+    ta.value = JSON.stringify(cards, null, 2);
+    ta.focus();
+    ta.select();
+    $('wc-export-text-wrap').scrollIntoView({behavior:'smooth', block:'center'});
+  }
+  function importJsonFile(file){
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try{
+        const parsed = JSON.parse(e.target.result);
+        if(!Array.isArray(parsed)) throw new Error('invalid');
+        const existingIds = new Set(cards.map(c=>c.id));
+        let added=0, renamed=0;
+        parsed.forEach(raw => {
+          const c = migrateCard(raw);
+          if(existingIds.has(c.id)){ c.id = 'imp'+Date.now()+Math.floor(Math.random()*100000); renamed++; }
+          existingIds.add(c.id); cards.push(c); added++;
+        });
+        persist(); pushHistory(); render();
+        showToast(`${added}枚読み込みました${renamed?`（うち${renamed}枚は新IDを割当）`:''}`);
+      }catch(err){ showAlertModal('JSONの読み込みに失敗しました。ファイル形式を確認してください。'); }
+    };
+    reader.readAsText(file);
+  }
+  async function applyTemplateData(){
+    const ok = await showConfirmModal(
+      'このファイルに同梱されている最新データを取り込みます。\n\n' +
+      '・不足しているカードを追加します\n' +
+      '・同梱データ側の学習状態・お気に入り・頻度で上書きします\n' +
+      '・ご自身で追加したカードはそのまま残ります\n\n' +
+      '実行しますか？'
+    );
+    if(!ok) return;
+
+    const byId = new Map(cards.map(c => [c.id, c]));
+    let added = 0, updated = 0;
+    PENDING_CARDS.forEach(raw => {
+      const t = migrateCard(raw);
+      const existing = byId.get(t.id);
+      if(!existing){
+        cards.push(t);
+        added++;
+      }else{
+        // refresh the template-managed fields (keeps the card's identity/position)
+        Object.assign(existing, t, { createdAt: existing.createdAt || t.createdAt, updatedAt: Date.now() });
+        updated++;
+      }
+    });
+    // make sure these ids stay marked as seen so nothing resurrects unexpectedly
+    try{ await storageSet('seenPendingIds', JSON.stringify(PENDING_CARDS.map(c=>c.id))); }catch(e){}
+
+    await persist(); pushHistory(); render();
+    showToast(`最新データを取り込みました（追加 ${added}件 / 更新 ${updated}件）`);
+  }
+
+  async function resetAllData(){
+    if(!(await showConfirmModal('本当にすべてのカードを削除しますか？'))) return;
+    if(!(await showConfirmModal('最終確認：全データを初期化します。よろしいですか？'))) return;
+    cards = []; selection.clear(); randomSampleIds = null;
+    persist(); historyStack=[]; historyIndex=-1; pushHistory(); render();
+    showToast('データを初期化しました');
+  }
+
+  function pagesHtml(pages, minPt){
+    let html = '';
+    pages.forEach(pageCards => {
+      const padded = pageCards.concat(Array(8 - pageCards.length).fill(null));
+      html += '<div class="wc-page-wrap"><div class="wc-page"><table class="wc-grid-table"><tbody>';
+      padded.forEach(c => {
+        if(!c){ html += '<tr><td><div class="wc-face"></div></td><td><div class="wc-face"></div></td></tr>'; return; }
+        const fs = computeFontSizes(c, minPt);
+        const exHtml = (c.examples||[]).slice(0,1).map(e => `<div>・${escapeHtml(e)}</div>`).join('');
+        const regHtml = (c.registers||[]).map(r => `<div class="wc-reg"><b>${escapeHtml(r.label||'表現')}:</b> ${escapeHtml(r.phrase)}</div>`).join('');
+        html += `
+          <tr>
+          <td><div class="wc-face" style="font-size:${fs.frontPt}pt;">
+            <div class="wc-hole"></div>
+            <div class="wc-jp-text">${escapeHtml(c.jp)}</div>
+          </div></td>
+          <td><div class="wc-face" style="font-size:${fs.backPt}pt;">
+            <div class="wc-back-inner">
+              <div class="wc-en-text">${escapeHtml(c.en)}</div>
+              ${c.form ? `<div class="wc-form"><b>形:</b> ${escapeHtml(c.form)}</div>` : ''}
+              ${regHtml}
+              <div class="wc-ex">${exHtml}</div>
+            </div>
+          </div></td>
+          </tr>`;
+      });
+      html += '</tbody></table></div></div>';
+    });
+    return html;
+  }
+  function chunk(arr, size){ const out=[]; for(let i=0;i<arr.length;i+=size) out.push(arr.slice(i,i+size)); return out; }
+
+  function autoFitAll(container, minPt){
+    const els = container.querySelectorAll('.wc-face');
+    els.forEach(el => {
+      let pt = parseFloat(el.style.fontSize) || 6;
+      let guard = 0;
+      while((el.scrollHeight > el.clientHeight + 0.5 || el.scrollWidth > el.clientWidth + 0.5) && pt > minPt && guard < 80){
+        pt -= 0.15;
+        el.style.fontSize = pt.toFixed(2) + 'pt';
+        guard++;
+      }
+    });
+  }
+
+  function updatePrintTargetCount(){
+    const el = $('wc-print-target-count');
+    const listEl = $('wc-print-target-list');
+    if(!el) return;
+    const targetCards = getPrintSet(false);
+    const n = targetCards.length;
+    const selN = selection.size;
+    el.textContent = selN>0
+      ? `一覧の絞り込み条件で ${n}枚が対象（「選択分を印刷」を使うと選択中の${selN}枚のみが対象になります）`
+      : `現在の一覧の絞り込み条件で ${n}枚が印刷/PDFの対象です`;
+    if(listEl){
+      listEl.innerHTML = targetCards.map((c,i) => `${i+1}. ${escapeHtml(c.jp)}`).join('<br>') || '（対象カードなし）';
+    }
+  }
+
+
+  function getPrintSet(onlySelected){
+    let set;
+    if(onlySelected && selection.size>0){
+      set = cards.filter(c=>selection.has(c.id));
+    }else{
+      // exactly what's currently shown in the card list (search/tag/status filters, random sample, etc.)
+      set = getFilteredSortedCards();
+    }
+    if($('print-fav-only').checked) set = set.filter(c=>c.favorite);
+    return set.slice().sort((a,b)=>a.createdAt-b.createdAt);
+  }
+
+  let builtPages = [];
+  async function buildPrintArea(onlySelected){
+    const ordered = getPrintSet(onlySelected);
+    builtPages = chunk(ordered, 8);
+    const minPt = Number($('settings-min-font').value)||4.5;
+    const area = $('wc-preview-scroll');
+    area.innerHTML = pagesHtml(builtPages, minPt) || '<div class="wc-page-wrap"><div class="wc-page"></div></div>';
+    document.querySelectorAll('#wc-preview-scroll .wc-page-wrap').forEach(p=>p.style.display='block');
+    try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
+    autoFitAll(area, minPt);
+    currentPreviewPage = 0;
+    showPreviewPage();
+  }
+  function showPreviewPage(){
+    const pages = document.querySelectorAll('#wc-preview-scroll .wc-page-wrap');
+    pages.forEach((p,i)=> p.style.display = (i===currentPreviewPage ? 'block' : 'none'));
+    $('wc-page-indicator').textContent = pages.length ? `${currentPreviewPage+1} / ${pages.length}` : '0 / 0';
+  }
+
+  async function doPrint(onlySelected){
+    if(cards.length===0){ await showAlertModal('カードがまだありません。先にカードを追加してください。'); return; }
+    await buildPrintArea(!!onlySelected);
+    document.querySelectorAll('#wc-preview-scroll .wc-page-wrap').forEach(p=>p.style.display='block');
+    $('wc-print-area').scrollIntoView({behavior:'smooth', block:'start'});
+    setTimeout(()=>{ window.print(); showPreviewPage(); }, 400);
+  }
+
+  async function exportPdf(){
+    if(cards.length===0){ await showAlertModal('カードがまだありません。先にカードを追加してください。'); return; }
+    const btn = $('btn-pdf');
+    btn.disabled = true;
+    const original = btn.innerHTML;
+    btn.textContent = 'PDF生成中…';
+
+    try{
+      // build the preview fresh (always all cards matching the current list filters)
+      await buildPrintArea(false);
+      // make sure every page is visible (not hidden by the on-screen pager) and at true 1:1 scale for capture
+      const pageWraps = Array.from(document.querySelectorAll('#wc-preview-scroll .wc-page-wrap'));
+      pageWraps.forEach(w => { w.style.display = 'block'; });
+      const pageEls = Array.from(document.querySelectorAll('#wc-preview-scroll .wc-page'));
+      const prevInlineTransforms = pageEls.map(el => el.style.transform);
+      pageEls.forEach(el => { el.style.transform = 'none'; });
+      const prevWrapStyles = pageWraps.map(w => ({ width: w.style.width, height: w.style.height, overflow: w.style.overflow }));
+      pageWraps.forEach(w => { w.style.width = '210mm'; w.style.height = '297mm'; w.style.overflow = 'visible'; });
+
+      try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
+      await new Promise(r => setTimeout(r, 150)); // let layout settle after the style changes above
+
+      if(!window.jspdf || !window.html2canvas) throw new Error('PDF libraries not available');
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+
+      for(let i=0;i<pageEls.length;i++){
+        const canvas = await window.html2canvas(pageEls[i], { scale:3, backgroundColor:'#ffffff', useCORS:true });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        if(i>0) doc.addPage('a4','portrait');
+        doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+      }
+      doc.save('word_cards.pdf');
+      showToast('PDFをダウンロードしました');
+
+      // restore preview back to normal on-screen (scaled) state
+      pageEls.forEach((el,i) => { el.style.transform = prevInlineTransforms[i]; });
+      pageWraps.forEach((w,i) => { w.style.width = prevWrapStyles[i].width; w.style.height = prevWrapStyles[i].height; w.style.overflow = prevWrapStyles[i].overflow; });
+      showPreviewPage();
+    }catch(e){
+      console.error('PDF export failed', e);
+      showAlertModal('PDF生成に失敗しました（' + (e && e.message ? e.message : e) + '）。ネット接続が必要です（PDF変換用の部品を読み込みます）。うまくいかない場合は「印刷用シートを作成 / 印刷」から印刷ダイアログの「PDFに保存」もお試しください。');
+    }finally{
+      btn.disabled = false;
+      btn.innerHTML = original;
+    }
+  }
+
+  async function aiGenerate(){
+    const jpInput = $('f-jp').value.trim();
+    const enInput = $('f-en').value.trim();
+    const seed = jpInput || enInput;
+    if(!seed){ await showAlertModal('「表：日本語フレーズ」欄に日本語フレーズか調べたい英単語を入力してください。'); return; }
+    const btn = $('btn-ai'); btn.disabled = true; const originalLabel = btn.innerHTML; btn.textContent = '生成中…';
+
+    const reviewEnglish = !!enInput; // review whenever the user supplied an English phrase
+
+    // A bare single word (or a very short fragment) is worth expanding into a usable phrase.
+    const wordCount = (s) => s.trim().split(/\s+/).filter(Boolean).length;
+    const enIsBareWord = !!enInput && wordCount(enInput) <= 2 && !/[.!?]$/.test(enInput.trim());
+    const jpIsBareWord = !!jpInput && jpInput.trim().length <= 8 && !/[。！？]$/.test(jpInput.trim());
+    const suggestPhrase = (enInput ? enIsBareWord : jpIsBareWord);
+
+    const phraseSection = suggestPhrase ? `
+【重要】ユーザーは単語（または非常に短い断片）だけを入力しています。ユーザーは「単語単体ではなく、日常生活で実際に使えるフレーズごと覚えたい」と考えています。
+そこで、その単語を含む「日常生活・ビジネスで最も自然かつ汎用的に使える短いフレーズ」を提案してください。
+
+PHRASE_SUGGEST: YES
+PHRASE_EN: 提案する英語フレーズ（その単語を含む、実用的で短い一文）
+PHRASE_JP: そのフレーズの自然な日本語訳
+PHRASE_EXAMPLE: そのフレーズを使った応用例文を1つ
+PHRASE_REASON: なぜこのフレーズで覚えると良いのかを日本語で簡潔に
+
+なお ENGLISH / JAPANESE の項目には、フレーズではなく元の単語ベースの内容を入れてください（ユーザーが単語のまま保存を選ぶ場合に使います）。
+` : '';
+
+    const reviewSection = reviewEnglish ? `
+【重要】今回はユーザーが英語フレーズを入力しています。まずその英語フレーズを評価してください。
+- ネイティブが実際に使う自然な表現として問題がなければ、VERDICT: OK と出力し、ENGLISH にはユーザーの入力をそのまま使ってください。
+- 不自然・文法的に不適切・学習者に推奨できない表現であれば、VERDICT: SUGGEST と出力し、ENGLISH にはより自然な代替表現を入れ、REASON にその理由を日本語で簡潔に説明してください。
+
+VERDICT: OK または SUGGEST のいずれか
+REASON: SUGGESTの場合のみ、訂正理由を日本語で簡潔に（OKの場合は空欄）
+` : '';
+
+    const prompt = `あなたは日本人の英語学習者向けに単語カードの内容を作るアシスタントです。
+次の入力をもとに、以下の形式で出力してください。JSONは使わず、必ず「ラベル: 内容」の1行1項目形式にしてください。前置き・説明文・コードブロック記号は一切含めないでください。各項目の内容は改行を含めず1行で書いてください。
+${reviewSection}${phraseSection}
+JAPANESE: カード表面に載せる自然な日本語フレーズ
+ENGLISH: ネイティブが実際に最も一般的に使う自然な英語フレーズ
+COMMONFORM: よく使われる文型・コロケーション
+EXAMPLE: 応用例文（ビジネス・日常会話で最も汎用性が高く、ネイティブが実際によく使う例文を1つだけ）
+REGISTER: カジュアル | フレーズ（場面で言い方が変わる場合のみ、0〜3行）
+REGISTER: ビジネス | フレーズ
+FREQUENCY: ネイティブの使用頻度を1〜5の整数のみ
+SIMILAR: 類似表現の簡単な説明
+NUANCE: 類似表現とのニュアンスの違い
+MISTAKES: 日本人が間違えやすいポイント
+PARAPHRASE: よりネイティブらしい言い換え
+FORMALCASUAL: フォーマル/カジュアルでの言い方の違い
+
+${reviewEnglish
+  ? (jpInput
+      ? `日本語フレーズ: 「${jpInput}」\nユーザーが入力した英語フレーズ: 「${enInput}」`
+      : `ユーザーが入力した英語フレーズ: 「${enInput}」（対応する自然な日本語フレーズも生成してください）`)
+  : `入力: 「${seed}」`}`;
+
+    try{
+      const fetchPromise = fetch(AI_PROXY_URL || "https://api.anthropic.com/v1/messages", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 900, messages: [{ role: "user", content: prompt }] })
+      });
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 25000));
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
+      const data = await response.json();
+      const text = (data.content||[]).map(item => item.type==="text"?item.text:"").filter(Boolean).join("\n");
+
+      const obj = { examples: [], registers: [] };
+      text.split('\n').forEach(rawLine => {
+        const line = rawLine.trim();
+        const m = line.match(/^([A-Z]+):\s*(.*)$/);
+        if(!m) return;
+        const [, label, valueRaw] = m;
+        const value = valueRaw.trim();
+        if(!value) return;
+        switch(label){
+          case 'JAPANESE': obj.japanese = value; break;
+          case 'ENGLISH': obj.english = value; break;
+          case 'PRONUNCIATION': obj.pronunciation = value; break;
+          case 'KANA': obj.kana = value; break;
+          case 'COREIMAGE': obj.coreImage = value; break;
+          case 'COMMONFORM': obj.commonForm = value; break;
+          case 'EXAMPLE': obj.examples.push(value); break;
+          case 'REGISTER': {
+            const idx = value.indexOf('|');
+            if(idx>-1) obj.registers.push({ label: value.slice(0,idx).trim(), phrase: value.slice(idx+1).trim() });
+            break;
+          }
+          case 'TAGS': obj.tags = value.split(/[,、]/).map(t=>t.trim()).filter(Boolean); break;
+          case 'FREQUENCY': obj.frequencyGuess = value; break;
+          case 'SIMILAR': obj.similarExpressions = value; break;
+          case 'NUANCE': obj.nuanceComparison = value; break;
+          case 'MISTAKES': obj.commonMistakes = value; break;
+          case 'PARAPHRASE': obj.nativeParaphrase = value; break;
+          case 'FORMALCASUAL': obj.formalCasualComparison = value; break;
+          case 'VERDICT': obj.verdict = value.toUpperCase(); break;
+          case 'REASON': obj.reason = value; break;
+          case 'PHRASE_SUGGEST': obj.phraseSuggest = value.toUpperCase(); break;
+          case 'PHRASE_EN': obj.phraseEn = value; break;
+          case 'PHRASE_JP': obj.phraseJp = value; break;
+          case 'PHRASE_PRON': obj.phrasePron = value; break;
+          case 'PHRASE_KANA': obj.phraseKana = value; break;
+          case 'PHRASE_EXAMPLE': obj.phraseExample = value; break;
+          case 'PHRASE_REASON': obj.phraseReason = value; break;
+        }
+      });
+      if(!obj.japanese && !obj.english) throw new Error('AI response had no parseable fields');
+
+      // If the user supplied an English phrase, decide whether to keep it or offer a correction.
+      let englishToUse = obj.english || '';
+      if(reviewEnglish && !suggestPhrase){
+        const suggestsChange = obj.verdict === 'SUGGEST'
+          && englishToUse
+          && englishToUse.toLowerCase().trim() !== enInput.toLowerCase().trim();
+        if(suggestsChange){
+          const detail =
+            `入力された英語フレーズ:\n「${enInput}」\n\n` +
+            `おすすめの表現:\n「${englishToUse}」\n\n` +
+            (obj.reason ? `理由:\n${obj.reason}\n\n` : '') +
+            ((obj.examples && obj.examples[0]) ? `使用例:\n${obj.examples[0]}\n\n` : '') +
+            `英語フレーズをおすすめの表現に置き換えますか？`;
+          const choice = await showModal(detail, [
+            {label:'入力した表現のままにする', value:'keep'},
+            {label:'おすすめに置き換える', value:'replace', primary:true}
+          ]);
+          if(choice === 'keep') englishToUse = enInput;
+        }else{
+          // verdict OK (or no meaningful change proposed): keep the user's original wording
+          englishToUse = enInput;
+        }
+      }
+
+      let japaneseToUse = obj.japanese || jpInput || '';
+      let usedPhrase = false;
+
+      // Bare word entered: offer to learn it as a usable everyday phrase instead.
+      if(suggestPhrase && obj.phraseSuggest === 'YES' && obj.phraseEn){
+        const detail =
+          `入力:\n「${enInput || jpInput}」\n\n` +
+          `単語のままより、フレーズごと覚える方が実際に使えるようになります。\n\n` +
+          `おすすめのフレーズ:\n「${obj.phraseEn}」\n` +
+          (obj.phraseJp ? `（${obj.phraseJp}）\n` : '') +
+          (obj.phraseReason ? `\n理由:\n${obj.phraseReason}\n` : '') +
+          `\nこのフレーズでカードを作りますか？`;
+        const choice = await showModal(detail, [
+          {label:'単語のままにする', value:'word'},
+          {label:'フレーズで覚える', value:'phrase', primary:true}
+        ]);
+        if(choice === 'phrase'){
+          englishToUse = obj.phraseEn;
+          japaneseToUse = obj.phraseJp || japaneseToUse;
+          usedPhrase = true;
+        }
+      }
+
+      $('f-jp').value = japaneseToUse;
+      $('f-en').value = englishToUse;
+      $('f-form').value = obj.commonForm || '';
+      const exs = obj.examples || [];
+      $('f-ex1').value = (usedPhrase && obj.phraseExample) ? obj.phraseExample : (exs[0]||'');
+      const regs = obj.registers || [];
+      $('f-registers').value = regs.map(r=>`${r.label}: ${r.phrase}`).join('\n');
+      $('f-freq').value = String(Math.max(0, Math.min(5, Number(obj.frequencyGuess)||0)));
+      $('f-ai-similar').value = obj.similarExpressions || '';
+      $('f-ai-nuance').value = obj.nuanceComparison || '';
+      $('f-ai-mistakes').value = obj.commonMistakes || '';
+      $('f-ai-paraphrase').value = obj.nativeParaphrase || '';
+      $('f-ai-formalcasual').value = obj.formalCasualComparison || '';
+    }catch(e){
+      console.error('AI generate failed', e);
+      const isTimeout = e && e.message === 'TIMEOUT';
+      await showAlertModal(isTimeout
+        ? '通信がタイムアウトしました（25秒応答なし）。電波状況を確認するか、しばらくしてからもう一度お試しください。'
+        : 'この環境ではAI生成が使えないようです（' + (e && e.message ? e.message : e) + '）。チャットで直接依頼していただくか、手動で入力してください。');
+    }finally{
+      btn.disabled = false; btn.innerHTML = originalLabel;
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    const active = document.activeElement;
+    const tag = active ? active.tagName : '';
+    const isTyping = tag==='INPUT' || tag==='TEXTAREA' || tag==='SELECT';
+
+    if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ e.preventDefault(); saveCard(); return; }
+    if((e.ctrlKey||e.metaKey) && (e.key==='s'||e.key==='S')){ e.preventDefault(); saveCard(); return; }
+    if(e.key==='Escape'){ if(isTyping) active.blur(); clearForm(); return; }
+    if((e.ctrlKey||e.metaKey) && e.shiftKey && (e.key==='z'||e.key==='Z') && !isTyping){ e.preventDefault(); redo(); return; }
+    if((e.ctrlKey||e.metaKey) && !e.shiftKey && (e.key==='z'||e.key==='Z') && !isTyping){ e.preventDefault(); undo(); return; }
+    if(e.key==='Enter' && !e.ctrlKey && !e.metaKey && tag==='INPUT'){
+      const idx = FIELD_ORDER.indexOf(active.id);
+      if(idx>-1 && idx<FIELD_ORDER.length-1){
+        e.preventDefault();
+        const nextEl = document.getElementById(FIELD_ORDER[idx+1]);
+        if(nextEl) nextEl.focus();
+      }
+    }
+  });
+
+  $('btn-save').addEventListener('click', saveCard);
+  $('btn-clear').addEventListener('click', clearForm);
+  $('btn-ai').addEventListener('click', aiGenerate);
+  $('f-fav-btn').addEventListener('click', () => {
+    const on = $('f-fav-btn').dataset.fav==='true';
+    $('f-fav-btn').dataset.fav = on ? 'false':'true';
+    $('f-fav-btn').textContent = on ? '☆ お気に入り' : '★ お気に入り';
+  });
+
+  $('filter-text').addEventListener('input', render);
+  $('filter-status').addEventListener('change', render);
+  $('filter-fav').addEventListener('change', render);
+  $('sort-mode').addEventListener('change', render);
+  $('btn-select-all').addEventListener('click', toggleSelectAll);
+  $('btn-rand10').addEventListener('click', ()=>pickRandom(10));
+  $('btn-rand20').addEventListener('click', ()=>pickRandom(20));
+  $('btn-rand-clear').addEventListener('click', ()=>{ randomSampleIds=null; render(); showToast('ランダム表示を解除しました'); });
+
+  $('bulk-status-btn').addEventListener('click', bulkSetStatus);
+  $('bulk-fav-on').addEventListener('click', ()=>bulkSetFav(true));
+  $('bulk-fav-off').addEventListener('click', ()=>bulkSetFav(false));
+  $('bulk-delete').addEventListener('click', bulkDelete);
+  $('bulk-print').addEventListener('click', ()=>doPrint(true));
+
+  $('btn-export').addEventListener('click', exportJson);
+  $('btn-export-text').addEventListener('click', showExportText);
+  $('btn-import-trigger').addEventListener('click', ()=>$('f-import').click());
+  $('f-import').addEventListener('change', (e)=>{ if(e.target.files[0]) importJsonFile(e.target.files[0]); e.target.value=''; });
+  $('btn-quality').addEventListener('click', runQualityCheck);
+  $('btn-apply-template').addEventListener('click', applyTemplateData);
+  $('btn-reset').addEventListener('click', resetAllData);
+
+  $('btn-print').addEventListener('click', ()=>doPrint(false));
+  $('btn-pdf').addEventListener('click', exportPdf);
+  $('btn-page-prev').addEventListener('click', ()=>{ if(currentPreviewPage>0){ currentPreviewPage--; showPreviewPage(); } });
+  $('btn-page-next').addEventListener('click', ()=>{ const n=document.querySelectorAll('#wc-preview-scroll .wc-page-wrap').length; if(currentPreviewPage<n-1){ currentPreviewPage++; showPreviewPage(); } });
+  $('wc-zoom').addEventListener('input', (e)=>{ $('wc-preview-scroll').style.setProperty('--zoom', e.target.value); });
+  $('settings-min-font').addEventListener('change', (e)=>{ settings.minFontSize = Number(e.target.value)||4.5; saveSettings(); });
+  $('print-fav-only').addEventListener('change', updatePrintTargetCount);
+  $('auto-backup').addEventListener('change', (e)=>{ settings.autoBackup = e.target.checked; saveSettings(); });
+
+  $('btn-undo').addEventListener('click', undo);
+  $('btn-redo').addEventListener('click', redo);
+  $('btn-theme').addEventListener('click', ()=>{ settings.theme = settings.theme==='dark' ? 'light':'dark'; applyTheme(); saveSettings(); });
+
+  window.addEventListener('online', () => {
+    showToast('オンラインに復帰しました。他端末の更新を確認しています…');
+    checkReconnectConflict();
+  });
+
+  // ---------- cloud sync (Firebase, anonymous auth + sync code) ----------
+  let syncCode = null;
+
+  function setSyncStatus(msg){
+    const el = $('wc-sync-status');
+    if(el) el.textContent = msg;
+  }
+
+  function genSyncCode(){
+    const part = () => Math.random().toString(36).slice(2,6);
+    return `${part()}-${part()}-${part()}`;
+  }
+
+  function buildSyncBlob(){
+    return {
+      cards: JSON.stringify(cards),
+      seenPendingIds: JSON.stringify(PENDING_CARDS.map(c=>c.id)),
+      updatedAt: Date.now(),
+      deviceId: DEVICE_ID
+    };
+  }
+
+  async function pushToCloud(){
+    if(!window.firebaseSync || !window.firebaseSync.isConnected()) return;
+    await window.firebaseSync.push(buildSyncBlob());
+  }
+
+  async function connectSync(code, opts){
+    opts = opts || {};
+    if(!code){ setSyncStatus('Sync Code を入力してください。'); return; }
+    if(!window.firebaseSync){ setSyncStatus('同期機能を読み込めませんでした（ネット接続を確認してください）。'); return; }
+
+    setSyncStatus('接続中…');
+    try{
+      await window.firebaseSync.connect(code);
+      syncCode = code;
+      await storageSet('syncCode', code);
+
+      const cloudBlob = await window.firebaseSync.pull();
+      if(cloudBlob && cloudBlob.cards){
+        let cloudCards = [];
+        try{ cloudCards = JSON.parse(cloudBlob.cards).map(migrateCard); }catch(e){ cloudCards = []; }
+
+        const sameDevice = cloudBlob.deviceId === DEVICE_ID;
+        const localMeta = getLocalSyncMeta();
+        const cloudIsNewer = !localMeta || (cloudBlob.updatedAt || 0) > (localMeta.updatedAt || 0);
+
+        if(!sameDevice && cloudIsNewer && cards.length > 0 && !opts.silent){
+          const cloudDate = new Date(cloudBlob.updatedAt || Date.now()).toLocaleString('ja-JP');
+          const choice = await showModal(
+            `クラウドに別端末のデータがあります（${cloudDate}時点、${cloudCards.length}枚）。\nこの端末には現在${cards.length}枚あります。\n\nどちらを使いますか？`,
+            [
+              {label:'この端末のデータを使う', value:'local'},
+              {label:'クラウドのデータを使う', value:'cloud', primary:true}
+            ]
+          );
+          if(choice === 'cloud'){
+            cards = cloudCards;
+            await persist(); pushHistory(); render();
+          }else{
+            await pushToCloud();
+          }
+        }else if(cloudCards.length && (cards.length === 0 || cloudIsNewer)){
+          cards = cloudCards;
+          await persist(); pushHistory(); render();
+        }else{
+          await pushToCloud();
+        }
+        // remember which pending seeds the cloud already accounted for
+        if(cloudBlob.seenPendingIds){
+          try{ await storageSet('seenPendingIds', cloudBlob.seenPendingIds); }catch(e){}
+        }
+      }else{
+        // brand-new code: seed the cloud with what we have
+        await pushToCloud();
+      }
+
+      setSyncStatus(`同期中: ${code}（保存すると自動でクラウドへ反映されます）`);
+      if(!opts.silent) showToast('クラウド同期に接続しました');
+    }catch(e){
+      console.error('sync connect failed', e);
+      setSyncStatus('接続に失敗しました: ' + (e && e.message ? e.message : e));
+    }
+  }
+
+  async function initSync(){
+    const saved = await storageGet('syncCode');
+    if(saved){
+      $('wc-sync-code').value = saved;
+      await connectSync(saved, {silent:true});
+    }else{
+      setSyncStatus(window.firebaseSync ? '未接続です。コードを作成または入力して接続してください。' : '同期機能の読み込みを待っています…');
+    }
+  }
+
+  $('btn-sync-new').addEventListener('click', () => {
+    $('wc-sync-code').value = genSyncCode();
+    setSyncStatus('コードを作成しました。「接続して同期」を押してください。');
+  });
+  $('btn-sync-connect').addEventListener('click', () => connectSync($('wc-sync-code').value.trim()));
+
+  window.addEventListener('firebase-sync-ready', () => { initSync(); });
+
+  loadSettings();
+  loadCards();
+  if(window.firebaseSync) initSync();
+})();
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDgSZHErKJijFTXQiNIjp0Ec3-W0Ou60Og",
+    authDomain: "taskparty-db284.firebaseapp.com",
+    projectId: "taskparty-db284",
+    storageBucket: "taskparty-db284.firebasestorage.app",
+    messagingSenderId: "421829442531",
+    appId: "1:421829442531:web:4b518dab281713f55f7ed6",
+  };
+
+  if(firebaseConfig.apiKey){
+    let app, db, auth, docRef;
+
+    async function ensureInit(){
+      if(app) return;
+      app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      auth = getAuth(app);
+      await signInAnonymously(auth).catch(err => console.warn('anon sign-in failed', err));
+    }
+
+    async function connect(code){
+      await ensureInit();
+      // separate collection so this never collides with FocusAtlas data
+      docRef = doc(db, 'flashcard_decks', code);
+    }
+
+    async function pull(){
+      if(!docRef) return null;
+      try{
+        const snap = await getDoc(docRef);
+        return snap.exists() ? snap.data() : null;
+      }catch(e){ console.warn('sync pull failed', e); return null; }
+    }
+
+    async function push(blob){
+      if(!docRef) return;
+      try{ await setDoc(docRef, blob); }catch(e){ console.warn('sync push failed', e); }
+    }
+
+    window.firebaseSync = { connect, pull, push, isConnected: () => !!docRef };
+    window.dispatchEvent(new Event('firebase-sync-ready'));
+  }
+</script>
